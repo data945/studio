@@ -51,8 +51,7 @@ const columns: ColumnDef<DeepWorkSession>[] = [
   },
 ];
 
-const newSession: Omit<DeepWorkSession, 'id' | 'createdAt' | 'userId'> = {
-  timeBlockId: 'placeholder',
+const newSession: Omit<DeepWorkSession, 'id' | 'createdAt' | 'userId' | 'timeBlockId'> = {
   subject: 'Linear Algebra',
   topic: 'Eigenvalues',
   subtopic: 'Characteristic Polynomial',
@@ -68,7 +67,7 @@ export default function DeepWorkPage() {
       description="Track study sessions, confidence, and blockages from Firestore."
       collectionName="deepWorkSessions"
       columns={columns}
-      newItem={newSession}
+      newItem={{...newSession, timeBlockId: 'temp-id'}}
       emptyState={{
         icon: BrainCircuit,
         title: 'No deep work sessions logged yet.',

@@ -40,7 +40,7 @@ const newExpense: Omit<Expense, 'id' | 'createdAt' | 'userId'> = {
 export default function ExpensesPage() {
   return (
     <DataPageLayout
-      title="Expense Management"
+      title="Expenses"
       description="Track your expenses and manage your budget from Firestore."
       collectionName="expenseManagements"
       columns={columns}

@@ -84,6 +84,7 @@ export type Project = {
 export type VocalPracticeSession = {
   id: string;
   userId: string;
+  timeBlockId: string;
   curriculum: string;
   subCurriculum: string;
   exercise: string;
@@ -95,6 +96,7 @@ export type VocalPracticeSession = {
 export type PhotographySession = {
   id: string;
   userId: string;
+  timeBlockId: string;
   shotCounter: number;
   qualityAssessment: number; // 1-5
   editingPipeline: 'Raw' | 'Basic Edit' | 'Advanced' | 'Published';

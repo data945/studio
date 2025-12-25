@@ -47,7 +47,7 @@ const columns: ColumnDef<VocalPracticeSession>[] = [
   },
 ];
 
-const newSession: Omit<VocalPracticeSession, 'id' | 'createdAt' | 'userId'> = {
+const newSession: Omit<VocalPracticeSession, 'id' | 'createdAt' | 'userId' | 'timeBlockId'> = {
   curriculum: 'New Age Voice',
   subCurriculum: 'The Diaphragm',
   exercise: 'Lip Rolls',
@@ -62,7 +62,7 @@ export default function VocalPracticePage() {
       description="Track your singing sessions and performance scores from Firestore."
       collectionName="vocalPracticeSessions"
       columns={columns}
-      newItem={newSession}
+      newItem={{...newSession, timeBlockId: 'temp-id'}}
       emptyState={{
         icon: Mic,
         title: 'No vocal sessions logged yet.',

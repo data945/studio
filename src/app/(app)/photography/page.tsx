@@ -47,7 +47,7 @@ const columns: ColumnDef<PhotographySession>[] = [
   },
 ];
 
-const newSession: Omit<PhotographySession, 'id' | 'createdAt' | 'userId'> = {
+const newSession: Omit<PhotographySession, 'id' | 'createdAt' | 'userId' | 'timeBlockId'> = {
   shotCounter: 50,
   qualityAssessment: 3,
   editingPipeline: 'Raw',
@@ -61,7 +61,7 @@ export default function PhotographyPage() {
       description="Track your photo sessions, ratings, and workflow from Firestore."
       collectionName="photographySessions"
       columns={columns}
-      newItem={newSession}
+      newItem={{...newSession, timeBlockId: 'temp-id'}}
       emptyState={{
         icon: Camera,
         title: 'No photography sessions logged yet.',

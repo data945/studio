@@ -62,3 +62,14 @@ export type Project = {
   tasks?: Task[]; // This will be a subcollection, so it's optional on the main project object
   createdAt: Timestamp;
 };
+
+export type VocalPracticeSession = {
+  id: string;
+  userId: string;
+  curriculum: string;
+  subCurriculum: string;
+  exercise: string;
+  performanceScore: number;
+  strugglePointTag: string;
+  createdAt: Timestamp;
+};

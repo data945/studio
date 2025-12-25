@@ -1,3 +1,4 @@
+
 import type { Timestamp } from 'firebase/firestore';
 
 export type ScheduleEvent = {
@@ -17,6 +18,7 @@ export type TimeBlock = {
   description: string;
   domain: string;
   completed: boolean;
+  createdAt: Timestamp;
 }
 
 export type DeepWorkSession = {

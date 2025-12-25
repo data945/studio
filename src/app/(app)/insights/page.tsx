@@ -83,7 +83,7 @@ export default function InsightsPage() {
                 <p className="text-muted-foreground">AI-powered analysis of your life domains based on your logged data.</p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 lg:grid-cols-3">
                 <Card className="lg:col-span-2">
                     <CardHeader>
                         <CardTitle>Data Analysis</CardTitle>
@@ -97,7 +97,7 @@ export default function InsightsPage() {
                             </CardHeader>
                             <CardContent>
                                 {dataIsLoading ? <Loader2 className="h-6 w-6 animate-spin"/> : (
-                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                                         <div className="font-medium">Sleep Quality: <span className="font-bold text-primary">{averageScores.sleepQuality.toFixed(1)}/10</span></div>
                                         <div className="font-medium">Deep Work Performance: <span className="font-bold text-primary">{averageScores.deepWorkPerformance.toFixed(1)}/10</span></div>
                                         <div className="font-medium">Nutrition Score: <span className="font-bold text-primary">{averageScores.nutritionScore.toFixed(1)}/10</span></div>

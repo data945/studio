@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useFirebase, useCollection, useMemoFirebase } from "@/firebase";
-import { collection } from "firebase/firestore";
+import { collection, doc } from "firebase/firestore";
 import type { Project, Task } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
@@ -34,24 +34,22 @@ function ProjectCard({ project }: { project: Project }) {
 
     const handleToggleTask = (task: Task) => {
         if (!firestore || !user) return;
-        const taskRef = collection(firestore, `users/${user.uid}/projects/${project.id}/tasks`);
-        const docRef = taskRef.doc(task.id);
+        const taskDocRef = doc(firestore, `users/${user.uid}/projects/${project.id}/tasks`, task.id);
         
-        updateDocumentNonBlocking(docRef, { completed: !task.completed });
+        updateDocumentNonBlocking(taskDocRef, { completed: !task.completed });
     };
 
     const handleAddTask = () => {
         if (!firestore || !user) return;
         
-        const newTask: Omit<Task, 'id'> = {
+        const newTask: Omit<Task, 'id' | 'createdAt'> = {
             title: 'New Task',
             completed: false,
-            createdAt: new Date(),
         };
 
         const tasksCollectionRef = collection(firestore, `users/${user.uid}/projects/${project.id}/tasks`);
 
-        addDocumentNonBlocking(tasksCollectionRef, newTask)
+        addDocumentNonBlocking(tasksCollectionRef, { ...newTask, createdAt: new Date() })
             .then(() => {
                 toast({ title: "Task added!" });
             });
@@ -120,18 +118,17 @@ export default function ProjectsPage() {
     const handleNewProject = () => {
         if (!firestore || !user) return;
         
-        const newProject: Omit<Project, 'id'> = {
+        const newProject: Omit<Project, 'id' | 'createdAt'> = {
             userId: user.uid,
             name: 'New Project',
             description: 'A new awesome project.',
             status: 'On Track',
             progress: 0,
-            createdAt: new Date(),
         };
 
         const projectsCollectionRef = collection(firestore, `users/${user.uid}/projects`);
 
-        addDocumentNonBlocking(projectsCollectionRef, newProject)
+        addDocumentNonBlocking(projectsCollectionRef, { ...newProject, createdAt: new Date() })
             .then(() => {
                 toast({ title: "Project created!" });
             })
@@ -143,12 +140,12 @@ export default function ProjectsPage() {
 
     return (
         <div className="flex flex-col gap-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Projects</h1>
                     <p className="text-muted-foreground">Track your personal and professional projects from Firestore.</p>
                 </div>
-                <Button onClick={handleNewProject} disabled={isUserLoading || projectsLoading}>
+                <Button onClick={handleNewProject} disabled={isUserLoading || projectsLoading} className="w-full sm:w-auto">
                     <PlusCircle className="mr-2 h-4 w-4" />
                     New Project
                 </Button>
@@ -162,7 +159,7 @@ export default function ProjectsPage() {
             )}
 
             {!isUserLoading && !projectsLoading && projects && (
-                 <div className="grid gap-6 lg:grid-cols-2">
+                 <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {projects.map((project) => (
                         <ProjectCard key={project.id} project={project} />
                     ))}

@@ -67,7 +67,7 @@ export default function SleepPage() {
       )}
       
       {!isUserLoading && !logsLoading && sleepLogs && sleepLogs.length > 0 && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {sleepLogs.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis()).map(log => (
               <Card key={log.id}>
                   <CardHeader>

@@ -84,7 +84,7 @@ export default function DashboardPage() {
         <p className="text-muted-foreground">Here's your synergistic overview for today.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -159,8 +159,8 @@ export default function DashboardPage() {
         </Card>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="md:col-span-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Today's Schedule</CardTitle>
             <CardDescription>A summary of your time-blocked activities for today.</CardDescription>
@@ -191,7 +191,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="md:col-span-1">
+        <Card className="md:col-span-1 lg:col-span-1">
           <CardHeader>
             <CardTitle>Cross-Domain Insights</CardTitle>
             <CardDescription>AI-powered analysis of your life domains.</CardDescription>

@@ -10,7 +10,7 @@ export type ScheduleEvent = {
 };
 
 export type DeepWorkSession = {
-  id: string;
+  id:string;
   userId: string;
   topic: string;
   duration: number; // in minutes
@@ -71,5 +71,15 @@ export type VocalPracticeSession = {
   exercise: string;
   performanceScore: number;
   strugglePointTag: string;
+  createdAt: Timestamp;
+};
+
+export type PhotographySession = {
+  id: string;
+  userId: string;
+  shotCounter: number;
+  qualityAssessment: number; // 1-5
+  editingPipeline: 'Raw' | 'Basic Edit' | 'Advanced' | 'Published';
+  skillGapAnalysis: string;
   createdAt: Timestamp;
 };

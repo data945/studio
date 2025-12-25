@@ -105,3 +105,12 @@ export type NutritionLog = {
   fat: number;
   createdAt: Timestamp;
 };
+
+export type Expense = {
+  id: string;
+  userId: string;
+  category: string;
+  description: string;
+  amount: number;
+  createdAt: Timestamp;
+};

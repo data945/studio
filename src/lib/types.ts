@@ -11,11 +11,12 @@ export type ScheduleEvent = {
 
 export type DeepWorkSession = {
   id: string;
-  date: string;
+  userId: string;
   topic: string;
   duration: number; // in minutes
   confidence: number; // 1-10
   blockages: string;
+  createdAt: Timestamp;
 };
 
 export type FitnessLog = {

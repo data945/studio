@@ -1,4 +1,4 @@
-import type { ScheduleEvent, DeepWorkSession, FitnessLog, SleepLog, Project as ProjectType } from './types';
+import type { ScheduleEvent, FitnessLog, SleepLog, Project as ProjectType } from './types';
 
 // Note: This file now contains only static types. 
 // The actual data is fetched from Firestore in the respective page components.
@@ -9,12 +9,6 @@ export const scheduleEvents: ScheduleEvent[] = [
   { id: '3', title: 'Vocal Practice', startTime: '14:00', endTime: '14:30', domain: 'Vocal', completed: false },
   { id: '4', title: 'Project: Life Engine', startTime: '15:00', endTime: '17:00', domain: 'Projects', completed: false },
   { id: '5', title: 'Sleep', startTime: '22:00', endTime: '06:00', domain: 'Sleep', completed: false },
-];
-
-export const deepWorkSessions: DeepWorkSession[] = [
-  { id: '1', date: '2024-07-21', topic: 'Eigenvalues', duration: 120, confidence: 7, blockages: 'Struggled with complex number applications.' },
-  { id: '2', date: '2024-07-20', topic: 'Vector Spaces', duration: 90, confidence: 9, blockages: '' },
-  { id: '3', date: '2024-07-19', topic: 'Matrix Transformations', duration: 110, confidence: 8, blockages: 'Visualizing shears was tricky.' },
 ];
 
 export const fitnessLogs: FitnessLog[] = [

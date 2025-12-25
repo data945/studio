@@ -159,6 +159,21 @@ service cloud.firestore {
       allow update: if isExistingOwner(userId) && isSubcollectionDataImmutable();
       allow delete: if isExistingOwner(userId);
     }
+    
+    /**
+     * @description Secures tasks within a project.
+     * @path /users/{userId}/projects/{projectId}/tasks/{taskId}
+     * @allow (create, get, list, update, delete) The project owner (`userId`) accessing tasks within their own project.
+     * @deny (create, get, list, update, delete) Any other user trying to access tasks.
+     * @principle Inherits ownership from the parent project, ensuring only the project owner can manage tasks.
+     */
+    match /users/{userId}/projects/{projectId}/tasks/{taskId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId); // Does not need owner check in data, path is enough
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
 
     /**
      * @description Secures a user's exercise sessions.

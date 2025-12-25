@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore';
+
 export type ScheduleEvent = {
   id: string;
   title: string;
@@ -39,13 +41,16 @@ export type Task = {
   id: string;
   title: string;
   completed: boolean;
+  createdAt: Timestamp;
 };
 
 export type Project = {
   id: string;
+  userId: string;
   name: string;
   description: string;
   status: 'On Track' | 'At Risk' | 'Completed';
   progress: number; // percentage
-  tasks: Task[];
+  tasks?: Task[]; // This will be a subcollection, so it's optional on the main project object
+  createdAt: Timestamp;
 };

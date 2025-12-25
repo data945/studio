@@ -1,4 +1,7 @@
-import type { ScheduleEvent, DeepWorkSession, FitnessLog, SleepLog, Project } from './types';
+import type { ScheduleEvent, DeepWorkSession, FitnessLog, SleepLog, Project as ProjectType } from './types';
+
+// Note: This file now contains only static types. 
+// The actual data is fetched from Firestore in the respective page components.
 
 export const scheduleEvents: ScheduleEvent[] = [
   { id: '1', title: 'Deep Work: Linear Algebra', startTime: '09:00', endTime: '11:00', domain: 'Deep Work', completed: true },
@@ -25,31 +28,36 @@ export const sleepLogs: SleepLog[] = [
     { id: '2', date: '2024-07-19', plannedBedtime: '22:00', actualBedtime: '22:10', quality: 8, obstacles: [] },
 ];
 
-export const projects: Project[] = [
+// This is now considered sample data and is not directly used by the projects page.
+export const projects: ProjectType[] = [
     {
         id: '1',
+        userId: 'sampleUser',
         name: 'Synergistic Life Engine',
         description: 'The very app you are using now. An AI-powered life optimization system.',
         status: 'On Track',
         progress: 60,
+        createdAt: new Date(),
         tasks: [
-            { id: 't1-1', title: 'Develop core data models', completed: true },
-            { id: 't1-2', title: 'Implement dashboard UI', completed: true },
-            { id: 't1-3', title: 'Integrate Genkit AI flows', completed: true },
-            { id: 't1-4', title: 'Build out projects module', completed: false },
-            { id: 't1-5', title: 'Flesh out all placeholder pages', completed: false },
+            { id: 't1-1', title: 'Develop core data models', completed: true, createdAt: new Date() },
+            { id: 't1-2', title: 'Implement dashboard UI', completed: true, createdAt: new Date() },
+            { id: 't1-3', title: 'Integrate Genkit AI flows', completed: true, createdAt: new Date() },
+            { id: 't1-4', title: 'Build out projects module', completed: false, createdAt: new Date() },
+            { id: 't1-5', title: 'Flesh out all placeholder pages', completed: false, createdAt: new Date() },
         ]
     },
     {
         id: '2',
+        userId: 'sampleUser',
         name: 'Learn Linear Algebra',
         description: 'Deep dive into linear algebra for better understanding of ML.',
         status: 'At Risk',
         progress: 25,
+        createdAt: new Date(),
         tasks: [
-            { id: 't2-1', title: 'Complete chapter on Vector Spaces', completed: true },
-            { id: 't2-2', title: 'Study Eigenvalues and Eigenvectors', completed: false },
-            { id: 't2-3', title: 'Practice with matrix transformations', completed: false },
+            { id: 't2-1', title: 'Complete chapter on Vector Spaces', completed: true, createdAt: new Date() },
+            { id: 't2-2', title: 'Study Eigenvalues and Eigenvectors', completed: false, createdAt: new Date() },
+            { id: 't2-3', title: 'Practice with matrix transformations', completed: false, createdAt: new Date() },
         ]
     }
 ]

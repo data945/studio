@@ -145,25 +145,68 @@
           "type": "string",
           "description": "Name of the project."
         },
-        "lifecycleStage": {
+        "description": {
           "type": "string",
-          "description": "Current lifecycle stage of the project (Idea, Planning, Active Development, Blocked, Complete)."
+          "description": "A brief summary of the project."
         },
-        "domainTag": {
+        "status": {
           "type": "string",
-          "description": "Domain this project falls under (e.g., math, programming)."
+          "description": "Current status of the project.",
+          "enum": [
+            "On Track",
+            "At Risk",
+            "Completed"
+          ]
         },
-        "blockers": {
+        "progress": {
+          "type": "number",
+          "description": "The completion percentage of the project."
+        },
+        "createdAt": {
           "type": "string",
-          "description": "Category for blockers encountered (technical, knowledge gap, resource)."
+          "format": "date-time",
+          "description": "The timestamp when the project was created."
         }
       },
       "required": [
         "id",
         "userId",
         "name",
-        "lifecycleStage",
-        "domainTag"
+        "description",
+        "status",
+        "progress",
+        "createdAt"
+      ]
+    },
+    "Task": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Task",
+      "type": "object",
+      "description": "Represents a single task within a project.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the task entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The description of the task."
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Whether the task has been completed."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the task was created."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "completed",
+        "createdAt"
       ]
     },
     "ExerciseSession": {
@@ -568,6 +611,30 @@
             {
               "name": "projectId",
               "description": "The unique identifier for the project."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/projects/{projectId}/tasks/{taskId}",
+        "definition": {
+          "entityName": "Task",
+          "schema": {
+            "$ref": "#/backend/entities/Task"
+          },
+          "description": "Stores task data for each project. Path-based ownership ensures only the user can read/write their own tasks.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "projectId",
+              "description": "The unique identifier for the project."
+            },
+            {
+              "name": "taskId",
+              "description": "The unique identifier for the task."
             }
           ]
         }

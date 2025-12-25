@@ -28,8 +28,8 @@ import {
   SidebarContent,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useFirebase } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -75,39 +75,52 @@ export function SidebarNav() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior={false} passHref asChild>
-                <SidebarMenuButton isActive={pathname === item.href} tooltip={item.label}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </SidebarMenuButton>
+              <Link href={item.href} legacyBehavior={false} passHref>
+                <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.href}
+                    tooltip={item.label}
+                    icon={<item.icon />}
+                    label={item.label}
+                />
               </Link>
             </SidebarMenuItem>
           ))}
-          
+          </SidebarMenu>
+
+          <SidebarMenu>
           <Separator className="my-2" />
 
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Tracking</p>
           {trackingModules.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior={false} passHref asChild>
-                <SidebarMenuButton isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                    <item.icon />
-                    <span>{item.label}</span>
-                </SidebarMenuButton>
+              <Link href={item.href} legacyBehavior={false} passHref>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname.startsWith(item.href)}
+                  tooltip={item.label}
+                  icon={<item.icon />}
+                  label={item.label}
+                />
               </Link>
             </SidebarMenuItem>
           ))}
-
+          </SidebarMenu>
+          
+          <SidebarMenu>
           <Separator className="my-2" />
           
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Analysis</p>
           {analysisModules.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior={false} passHref asChild>
-                <SidebarMenuButton isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                    <item.icon />
-                    <span>{item.label}</span>
-                </SidebarMenuButton>
+              <Link href={item.href} legacyBehavior={false} passHref>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname.startsWith(item.href)}
+                  tooltip={item.label}
+                  icon={<item.icon />}
+                  label={item.label}
+                />
               </Link>
             </SidebarMenuItem>
           ))}

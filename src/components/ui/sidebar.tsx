@@ -375,7 +375,7 @@ const SidebarFooter = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="footer"
-      className={cn("mt-auto flex flex-col gap-2 p-2", className)}
+      className={cn("flex flex-col gap-2 p-2", className)}
       {...props}
     />
   )
@@ -541,6 +541,8 @@ const SidebarMenuButton = React.forwardRef<
     asChild?: boolean
     isActive?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
+    icon?: React.ReactNode
+    label?: React.ReactNode
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
@@ -551,12 +553,22 @@ const SidebarMenuButton = React.forwardRef<
       size = "default",
       tooltip,
       className,
+      icon,
+      label,
+      children,
       ...props
     },
     ref
   ) => {
     const { isMobile, state } = useSidebar()
     const Comp = asChild ? Slot : 'button';
+
+    const buttonContent = children || (
+      <>
+        {icon}
+        <span>{label}</span>
+      </>
+    );
 
     const button = (
       <Comp
@@ -566,7 +578,9 @@ const SidebarMenuButton = React.forwardRef<
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
         {...props}
-      />
+      >
+        {buttonContent}
+      </Comp>
     )
 
     if (!tooltip) {

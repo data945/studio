@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -88,9 +87,9 @@ export function SidebarNav() {
           ))}
           </SidebarMenu>
           <SidebarSeparator />
-          <SidebarMenu>
-
+          
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Tracking</p>
+          <SidebarMenu>
           {trackingModules.map((item) => (
             <SidebarMenuItem key={item.href}>
               <Link href={item.href}>
@@ -107,9 +106,8 @@ export function SidebarNav() {
           </SidebarMenu>
           
           <SidebarSeparator />
-          <SidebarMenu>
-          
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Analysis</p>
+          <SidebarMenu>
           {analysisModules.map((item) => (
             <SidebarMenuItem key={item.href}>
               <Link href={item.href}>

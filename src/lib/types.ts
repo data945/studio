@@ -21,12 +21,19 @@ export type DeepWorkSession = {
 
 export type FitnessLog = {
     id: string;
-    date: string;
     exercise: string;
     sets: number;
     reps: number;
     weight: number;
     rpe: number;
+}
+
+export type FitnessSession = {
+    id: string;
+    userId: string;
+    name: string;
+    logs: FitnessLog[];
+    createdAt: Timestamp;
 }
 
 export type SleepLog = {

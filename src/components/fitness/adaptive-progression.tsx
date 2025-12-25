@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { adaptiveProgression, type AdaptiveProgressionOutput } from '@/ai/flows/adaptive-progression';
-import type { FitnessLog } from '@/lib/types';
+import type { FitnessSession } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { format } from 'date-fns';
 
 interface AdaptiveProgressionProps {
-  performanceData: FitnessLog[];
+  performanceData: FitnessSession;
 }
 
 export default function AdaptiveProgression({ performanceData }: AdaptiveProgressionProps) {
@@ -21,11 +22,11 @@ export default function AdaptiveProgression({ performanceData }: AdaptiveProgres
     setIsLoading(true);
     setSuggestion(null);
 
-    const performanceSummary = performanceData.map(
+    const performanceSummary = performanceData.logs.map(
       (log) => `${log.exercise}: ${log.sets}x${log.reps} at ${log.weight}kg (RPE ${log.rpe})`
     ).join('; ');
 
-    const currentLevel = `Push Day - ${performanceData[0]?.date}`;
+    const currentLevel = `${performanceData.name} - ${performanceData.createdAt ? format(performanceData.createdAt.toDate(), 'yyyy-MM-dd') : 'Recent'}`;
 
     try {
       const result = await adaptiveProgression({

@@ -1,13 +1,17 @@
 import type { PropsWithChildren } from 'react';
+import { cookies } from 'next/headers';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { Header } from '@/components/layout/header';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export default function AppLayout({ children }: PropsWithChildren) {
+  const layout = cookies().get('sidebar_state');
+  const defaultOpen = layout ? layout.value === 'true' : true;
+
   return (
     <FirebaseClientProvider>
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={defaultOpen}>
         <Sidebar>
           <SidebarNav />
         </Sidebar>

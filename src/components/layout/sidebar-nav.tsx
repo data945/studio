@@ -117,27 +117,25 @@ export function SidebarNav() {
       <SidebarFooter>
         <Separator className="mb-2" />
         <div className="p-2">
-            <Link href="/profile">
-                <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent cursor-pointer">
-                    <Avatar className="h-9 w-9">
-                        <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || 'User'} data-ai-hint="person face" />
-                        <AvatarFallback>
-                            {isUserLoading ? <Skeleton className="h-9 w-9 rounded-full" /> : <UserCircle />}
-                        </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                        {isUserLoading ? (
-                            <div className="space-y-1">
-                                <Skeleton className="h-4 w-20" />
-                                <Skeleton className="h-3 w-32" />
-                            </div>
-                        ) : (
-                           <>
-                                <span className="font-semibold text-sm">{user?.displayName || 'Anonymous User'}</span>
-                                <span className="text-xs text-muted-foreground">{user?.email || user?.uid.slice(0,10)+'...'}</span>
-                           </>
-                        )}
-                    </div>
+            <Link href="/profile" className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent cursor-pointer">
+                <Avatar className="h-9 w-9">
+                    <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || 'User'} data-ai-hint="person face" />
+                    <AvatarFallback>
+                        {isUserLoading ? <Skeleton className="h-9 w-9 rounded-full" /> : <UserCircle />}
+                    </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+                    {isUserLoading ? (
+                        <div className="space-y-1">
+                            <Skeleton className="h-4 w-20" />
+                            <Skeleton className="h-3 w-32" />
+                        </div>
+                    ) : (
+                        <>
+                            <span className="font-semibold text-sm">{user?.displayName || 'Anonymous User'}</span>
+                            <span className="text-xs text-muted-foreground">{user?.email || user?.uid.slice(0,10)+'...'}</span>
+                        </>
+                    )}
                 </div>
             </Link>
         </div>

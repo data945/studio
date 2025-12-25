@@ -9,7 +9,9 @@ export default function AppLayout({ children }: PropsWithChildren) {
     <FirebaseClientProvider>
       <SidebarProvider>
         <Sidebar>
-          <SidebarNav />
+          <div className="flex flex-col h-full">
+            <SidebarNav />
+          </div>
         </Sidebar>
         <SidebarInset>
           <Header />

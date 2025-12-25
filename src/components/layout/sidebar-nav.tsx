@@ -60,7 +60,7 @@ export function SidebarNav() {
   const { user, isUserLoading } = useFirebase();
 
   return (
-    <div className="flex flex-col h-full">
+    <>
       <SidebarHeader>
         <div className="flex items-center gap-3 p-2">
             <div className="p-2 rounded-lg bg-primary text-primary-foreground">
@@ -126,7 +126,7 @@ export function SidebarNav() {
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="mt-auto">
+      <SidebarFooter>
         <Link href="/profile" passHref legacyBehavior>
             <a className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent cursor-pointer">
                 <Avatar className="h-9 w-9">
@@ -151,6 +151,6 @@ export function SidebarNav() {
             </a>
         </Link>
       </SidebarFooter>
-    </div>
+    </>
   );
 }

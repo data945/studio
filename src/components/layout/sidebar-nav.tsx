@@ -75,8 +75,8 @@ export function SidebarNav() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} asChild>
-                <SidebarMenuButton isActive={pathname === item.href} tooltip={item.label}>
+              <Link href={item.href} legacyBehavior passHref>
+                <SidebarMenuButton as="a" isActive={pathname === item.href} tooltip={item.label}>
                   <item.icon />
                   <span>{item.label}</span>
                 </SidebarMenuButton>
@@ -89,8 +89,8 @@ export function SidebarNav() {
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Tracking</p>
           {trackingModules.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} asChild>
-                <SidebarMenuButton isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+              <Link href={item.href} legacyBehavior passHref>
+                <SidebarMenuButton as="a" isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                     <item.icon />
                     <span>{item.label}</span>
                 </SidebarMenuButton>
@@ -103,8 +103,8 @@ export function SidebarNav() {
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Analysis</p>
           {analysisModules.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} asChild>
-                <SidebarMenuButton isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+              <Link href={item.href} legacyBehavior passHref>
+                <SidebarMenuButton as="a" isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                     <item.icon />
                     <span>{item.label}</span>
                 </SidebarMenuButton>
@@ -117,7 +117,7 @@ export function SidebarNav() {
       <SidebarFooter>
         <Separator className="mb-2" />
         <div className="p-2">
-            <Link href="/profile" className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent cursor-pointer">
+             <Link href="/profile" className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent cursor-pointer" passHref>
                 <Avatar className="h-9 w-9">
                     <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || 'User'} data-ai-hint="person face" />
                     <AvatarFallback>

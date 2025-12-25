@@ -1,16 +1,12 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PlusCircle, CheckCircle2, Circle, Loader2 } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { useFirebase, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, doc, serverTimestamp } from "firebase/firestore";
-import type { Project, Task } from "@/lib/types";
-import { useToast } from "@/hooks/use-toast";
-import { addDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { PenSquare } from 'lucide-react';
+import type { Project } from '@/lib/types';
+import { DataPageLayout } from '@/components/data/data-page-layout';
+import type { ColumnDef } from '@/components/data/data-table';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { format } from 'date-fns';
 
 const statusColors: Record<Project['status'], string> = {
     'On Track': 'bg-green-500',
@@ -18,159 +14,69 @@ const statusColors: Record<Project['status'], string> = {
     'Completed': 'bg-blue-500',
 }
 
-function ProjectCard({ project }: { project: Project }) {
-    const { firestore, user } = useFirebase();
-    const { toast } = useToast();
-
-    const tasksQuery = useMemoFirebase(() => {
-        if (!firestore || !user) return null;
-        return collection(firestore, `users/${user.uid}/projects/${project.id}/tasks`);
-    }, [firestore, user, project.id]);
-
-    const { data: tasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
-
-    const completedTasks = tasks?.filter(t => t.completed).length || 0;
-    const totalTasks = tasks?.length || 0;
-    const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-
-    const handleToggleTask = (task: Task) => {
-        if (!firestore || !user) return;
-        const taskDocRef = doc(firestore, `users/${user.uid}/projects/${project.id}/tasks`, task.id);
-        
-        updateDocumentNonBlocking(taskDocRef, { completed: !task.completed });
-    };
-
-    const handleAddTask = () => {
-        if (!firestore || !user) return;
-        
-        const newTask: Omit<Task, 'id' | 'createdAt'> = {
-            title: 'New Task',
-            completed: false,
-        };
-
-        const tasksCollectionRef = collection(firestore, `users/${user.uid}/projects/${project.id}/tasks`);
-
-        addDocumentNonBlocking(tasksCollectionRef, { ...newTask, createdAt: serverTimestamp() })
-            .then(() => {
-                toast({ title: "Task added!" });
-            });
+const columns: ColumnDef<Project>[] = [
+  {
+    accessorKey: 'createdAt',
+    header: 'Date',
+    cell: ({ row }) => {
+      const date = row.original.createdAt?.toDate();
+      return date ? format(date, 'yyyy-MM-dd') : 'N/A';
+    },
+  },
+  {
+    accessorKey: 'name',
+    header: 'Project Name',
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+  },
+  {
+    accessorKey: 'description',
+    header: 'Description',
+    cell: ({ row }) => <p className="text-muted-foreground max-w-xs truncate">{row.original.description}</p>,
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }) => {
+        const status = row.original.status;
+        return (
+            <Badge variant={status === 'Completed' ? 'default' : 'outline'}>
+                <span className={`mr-2 h-2 w-2 rounded-full ${statusColors[status]}`}></span>
+                {status}
+            </Badge>
+        );
     }
+  },
+  {
+    accessorKey: 'progress',
+    header: 'Progress',
+    cell: ({ row }) => {
+        // This would ideally come from a sub-collection of tasks
+        const progress = Math.floor(Math.random() * 100); 
+        return <Progress value={progress} className="h-2 w-[100px]" />;
+    }
+  }
+];
 
-    return (
-        <Card>
-            <CardHeader>
-                <div className="flex items-center justify-between">
-                    <CardTitle>{project.name}</CardTitle>
-                    <Badge variant={project.status === 'Completed' ? 'default' : 'outline'}>
-                        <span className={`mr-2 h-2 w-2 rounded-full ${statusColors[project.status]}`}></span>
-                        {project.status}
-                    </Badge>
-                </div>
-                <CardDescription>{project.description}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div>
-                    <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm font-medium">Progress</span>
-                        <span className="text-sm text-muted-foreground">{progress.toFixed(0)}%</span>
-                    </div>
-                    <Progress value={progress} className="h-2"/>
-                </div>
-                
-                <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="tasks">
-                        <AccordionTrigger className="text-sm font-medium">
-                            Tasks ({completedTasks}/{totalTasks})
-                        </AccordionTrigger>
-                        <AccordionContent>
-                            <div className="space-y-2 pt-2">
-                                {tasksLoading && <Loader2 className="h-5 w-5 animate-spin mx-auto" />}
-                                {tasks?.sort((a,b) => a.createdAt.toMillis() - b.createdAt.toMillis()).map(task => (
-                                    <div key={task.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 cursor-pointer" onClick={() => handleToggleTask(task)}>
-                                        {task.completed ? <CheckCircle2 className="h-5 w-5 text-primary shrink-0" /> : <Circle className="h-5 w-5 text-muted-foreground shrink-0" />}
-                                        <span className={`flex-grow text-sm ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.title}</span>
-                                    </div>
-                                ))}
-                                 <Button variant="ghost" size="sm" className="w-full justify-start gap-2" onClick={handleAddTask}>
-                                    <PlusCircle className="h-4 w-4" /> Add Task
-                                </Button>
-                            </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-
-            </CardContent>
-        </Card>
-    );
-}
-
+const newProject: Omit<Project, 'id' | 'createdAt' | 'userId'> = {
+  name: 'New AI Venture',
+  description: 'Develop a new AI-powered application.',
+  status: 'On Track',
+  progress: 0,
+};
 
 export default function ProjectsPage() {
-    const { firestore, user, isUserLoading } = useFirebase();
-    const { toast } = useToast();
-
-    const projectsQuery = useMemoFirebase(() => {
-        if (!firestore || !user) return null;
-        return collection(firestore, `users/${user.uid}/projects`);
-    }, [firestore, user]);
-
-    const { data: projects, isLoading: projectsLoading, error } = useCollection<Project>(projectsQuery);
-
-    const handleNewProject = () => {
-        if (!firestore || !user) return;
-        
-        const newProject: Omit<Project, 'id' | 'createdAt' | 'userId'> = {
-            name: 'New Project',
-            description: 'A new awesome project.',
-            status: 'On Track',
-        };
-
-        const projectsCollectionRef = collection(firestore, `users/${user.uid}/projects`);
-
-        addDocumentNonBlocking(projectsCollectionRef, { ...newProject, userId: user.uid, createdAt: serverTimestamp() })
-            .then(() => {
-                toast({ title: "Project created!" });
-            })
-    }
-
-    if (error) {
-        return <div>Error: {error.message}</div>
-    }
-
-    return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight font-headline">Projects</h1>
-                    <p className="text-muted-foreground">Track your personal and professional projects from Firestore.</p>
-                </div>
-                <Button onClick={handleNewProject} disabled={isUserLoading || projectsLoading} className="w-full sm:w-auto">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    New Project
-                </Button>
-            </div>
-
-            {(isUserLoading || projectsLoading) && (
-                 <div className="grid gap-6 lg:grid-cols-2">
-                    <Card><CardHeader><CardTitle>Loading...</CardTitle></CardHeader><CardContent><Loader2 className="h-8 w-8 animate-spin" /></CardContent></Card>
-                    <Card><CardHeader><CardTitle>Loading...</CardTitle></CardHeader><CardContent><Loader2 className="h-8 w-8 animate-spin" /></CardContent></Card>
-                 </div>
-            )}
-
-            {!isUserLoading && !projectsLoading && projects && (
-                 <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    {projects.map((project) => (
-                        <ProjectCard key={project.id} project={project} />
-                    ))}
-                </div>
-            )}
-
-            {!isUserLoading && !projectsLoading && (!projects || projects.length === 0) && (
-                <Card className="flex flex-col items-center justify-center p-8 gap-4 text-center">
-                    <CardTitle>No projects yet!</CardTitle>
-                    <CardDescription>Click "New Project" to get started.</CardDescription>
-                </Card>
-            )}
-        </div>
-    );
+  return (
+    <DataPageLayout
+      title="Projects"
+      description="Track your personal and professional projects from Firestore."
+      collectionName="projects"
+      columns={columns}
+      newItem={newProject}
+      emptyState={{
+        icon: PenSquare,
+        title: 'No projects logged yet.',
+        description: 'Click "Log Project" to get started.',
+      }}
+    />
+  );
 }

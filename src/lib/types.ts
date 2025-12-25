@@ -77,6 +77,7 @@ export type Project = {
   name: string;
   description: string;
   status: 'On Track' | 'At Risk' | 'Completed';
+  progress: number;
   createdAt: Timestamp;
 };
 

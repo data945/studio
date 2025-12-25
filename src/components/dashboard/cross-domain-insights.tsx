@@ -1,31 +1,67 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Lightbulb, Loader2 } from 'lucide-react';
 import { crossDomainInsights, type CrossDomainInsightsOutput } from '@/ai/flows/cross-domain-insights';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import type { DeepWorkSession, SleepLog, NutritionLog, FitnessSession } from '@/lib/types';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+function calculateAverage(arr: number[]): number {
+    if (arr.length === 0) return 0;
+    const sum = arr.reduce((a, b) => a + b, 0);
+    return parseFloat((sum / arr.length).toFixed(1));
+}
+
 
 export default function CrossDomainInsights() {
-  const [sleepQuality, setSleepQuality] = useState(7);
-  const [deepWorkPerformance, setDeepWorkPerformance] = useState(8);
-  const [nutritionScore, setNutritionScore] = useState(6);
-  const [exerciseConsistency, setExerciseConsistency] = useState(9);
+  const { firestore, user, isUserLoading } = useFirebase();
+  const { toast } = useToast();
   const [insights, setInsights] = useState<CrossDomainInsightsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+    const [averageScores, setAverageScores] = useState({
+        sleepQuality: 0,
+        deepWorkPerformance: 0,
+        nutritionScore: 0,
+        exerciseConsistency: 0,
+    });
+
+  const deepWorkQuery = useMemoFirebase(() => user && firestore ? collection(firestore, `users/${user.uid}/deepWorkSessions`) : null, [firestore, user]);
+  const sleepQuery = useMemoFirebase(() => user && firestore ? collection(firestore, `users/${user.uid}/sleepOptimizations`) : null, [firestore, user]);
+  const nutritionQuery = useMemoFirebase(() => user && firestore ? collection(firestore, `users/${user.uid}/nutritionDiets`) : null, [firestore, user]);
+  const fitnessQuery = useMemoFirebase(() => user && firestore ? collection(firestore, `users/${user.uid}/fitness-sessions`) : null, [firestore, user]);
+
+  const { data: deepWorkSessions, isLoading: deepWorkLoading } = useCollection<DeepWorkSession>(deepWorkQuery);
+  const { data: sleepLogs, isLoading: sleepLoading } = useCollection<SleepLog>(sleepQuery);
+  const { data: nutritionLogs, isLoading: nutritionLoading } = useCollection<NutritionLog>(nutritionQuery);
+  const { data: fitnessSessions, isLoading: fitnessLoading } = useCollection<FitnessSession>(fitnessQuery);
+
+  const dataIsLoading = isUserLoading || deepWorkLoading || sleepLoading || nutritionLoading || fitnessLoading;
+
+  useEffect(() => {
+        const scores = {
+            sleepQuality: calculateAverage(sleepLogs?.map(log => log.quality) ?? []),
+            deepWorkPerformance: calculateAverage(deepWorkSessions?.map(s => s.confidence) ?? []),
+            // Simple nutrition score: average protein intake, capped at 10 for simplicity.
+            nutritionScore: Math.min(10, calculateAverage(nutritionLogs?.map(log => log.protein / 15) ?? [])),
+            // Simple exercise score: based on RPE
+            exerciseConsistency: calculateAverage(fitnessSessions?.flatMap(s => s.logs).map(l => l.rpe) ?? []),
+        };
+        setAverageScores(scores);
+    }, [deepWorkSessions, sleepLogs, nutritionLogs, fitnessSessions]);
 
   const handleAnalysis = async () => {
     setIsLoading(true);
     setInsights(null);
     try {
       const result = await crossDomainInsights({
-        sleepQuality,
-        deepWorkPerformance,
-        nutritionScore,
-        exerciseConsistency,
+        sleepQuality: averageScores.sleepQuality,
+        deepWorkPerformance: averageScores.deepWorkPerformance,
+        nutritionScore: averageScores.nutritionScore,
+        exerciseConsistency: averageScores.exerciseConsistency,
       });
       setInsights(result);
     } catch (error) {
@@ -41,26 +77,8 @@ export default function CrossDomainInsights() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="sleep-quality" className="flex justify-between"><span>Sleep Quality</span><span>{sleepQuality}</span></Label>
-          <Slider id="sleep-quality" value={[sleepQuality]} onValueChange={([v]) => setSleepQuality(v)} max={10} step={1} />
-        </div>
-        <div>
-          <Label htmlFor="deep-work" className="flex justify-between"><span>Deep Work Performance</span><span>{deepWorkPerformance}</span></Label>
-          <Slider id="deep-work" value={[deepWorkPerformance]} onValueChange={([v]) => setDeepWorkPerformance(v)} max={10} step={1} />
-        </div>
-        <div>
-          <Label htmlFor="nutrition" className="flex justify-between"><span>Nutrition Score</span><span>{nutritionScore}</span></Label>
-          <Slider id="nutrition" value={[nutritionScore]} onValueChange={([v]) => setNutritionScore(v)} max={10} step={1} />
-        </div>
-        <div>
-          <Label htmlFor="exercise" className="flex justify-between"><span>Exercise Consistency</span><span>{exerciseConsistency}</span></Label>
-          <Slider id="exercise" value={[exerciseConsistency]} onValueChange={([v]) => setExerciseConsistency(v)} max={10} step={1} />
-        </div>
-      </div>
-      <Button onClick={handleAnalysis} disabled={isLoading} className="w-full">
-        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}
+      <Button onClick={handleAnalysis} disabled={isLoading || dataIsLoading} className="w-full">
+        {isLoading || dataIsLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}
         Generate Insights
       </Button>
 
@@ -79,6 +97,15 @@ export default function CrossDomainInsights() {
             </ul>
           </div>
         </div>
+      )}
+
+      {!insights && !isLoading && (
+        <Alert>
+            <AlertTitle>Get Your Insights</AlertTitle>
+            <AlertDescription>
+                Click the button to analyze your latest data. Make sure you have logged data in all tracking modules for the best results.
+            </AlertDescription>
+        </Alert>
       )}
     </div>
   );

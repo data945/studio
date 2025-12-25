@@ -1,9 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, serverTimestamp, query, orderBy, OrderByDirection } from 'firebase/firestore';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import { useToast } from '@/hooks/use-toast';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, type LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -14,7 +13,7 @@ interface DataPageLayoutProps<T> {
   description: string;
   collectionName: string;
   columns: ColumnDef<T>[];
-  newItem: Omit<T, 'id' | 'createdAt' | 'userId'>;
+  NewItemDialog?: React.ComponentType<{ open: boolean; onOpenChange: (open: boolean) => void; }>;
   emptyState: {
     icon: LucideIcon;
     title: string;
@@ -31,12 +30,12 @@ export function DataPageLayout<T extends { id: string; userId: string; createdAt
   description,
   collectionName,
   columns,
-  newItem,
+  NewItemDialog,
   emptyState,
   initialSort = { id: 'createdAt', desc: true },
 }: DataPageLayoutProps<T>) {
   const { firestore, user, isUserLoading } = useFirebase();
-  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const dataQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -49,17 +48,6 @@ export function DataPageLayout<T extends { id: string; userId: string; createdAt
   const { data, isLoading: dataLoading, error } = useCollection<T>(dataQuery);
 
   const isLoading = isUserLoading || dataLoading;
-
-  const handleNewItem = () => {
-    if (!firestore || !user) return;
-
-    const collectionRef = collection(firestore, `users/${user.uid}/${collectionName}`);
-
-    addDocumentNonBlocking(collectionRef, { ...newItem, userId: user.uid, createdAt: serverTimestamp() })
-      .then(() => {
-        toast({ title: `${title.slice(0, -1)} logged!` });
-      });
-  };
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -74,10 +62,12 @@ export function DataPageLayout<T extends { id: string; userId: string; createdAt
           <h1 className="text-3xl font-bold tracking-tight font-headline">{title}</h1>
           <p className="text-muted-foreground">{description}</p>
         </div>
-        <Button onClick={handleNewItem} disabled={isLoading} className="w-full sm:w-auto">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Log {title.slice(0, -1)}
-        </Button>
+        {NewItemDialog && (
+            <Button onClick={() => setIsDialogOpen(true)} disabled={isLoading} className="w-full sm:w-auto">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Log {title.slice(0, -1)}
+            </Button>
+        )}
       </div>
 
       <Card>
@@ -100,6 +90,8 @@ export function DataPageLayout<T extends { id: string; userId: string; createdAt
           />
         </CardContent>
       </Card>
+
+      {NewItemDialog && <NewItemDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />}
     </div>
   );
 }

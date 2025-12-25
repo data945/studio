@@ -5,8 +5,8 @@ import { Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { Header } from '@/components/layout/header';
 
-export default function AppLayout({ children }: PropsWithChildren) {
-  const layout = cookies().get('sidebar_state');
+export default async function AppLayout({ children }: PropsWithChildren) {
+  const layout = await cookies().get('sidebar_state');
   const defaultOpen = layout ? layout.value === 'true' : true;
 
   return (

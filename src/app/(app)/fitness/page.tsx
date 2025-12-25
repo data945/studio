@@ -1,16 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dumbbell, Loader2, PlusCircle } from 'lucide-react';
 import AdaptiveProgression from '@/components/fitness/adaptive-progression';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, serverTimestamp, query, orderBy, limit } from 'firebase/firestore';
+import { collection, query, orderBy, limit } from 'firebase/firestore';
 import type { FitnessSession } from '@/lib/types';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { DataTable, type ColumnDef } from '@/components/data/data-table';
+import { NewFitnessSessionDialog } from '@/components/fitness/new-fitness-session-dialog';
 
 const exerciseColumns: ColumnDef<FitnessSession['exerciseDetails'][0]>[] = [
     { accessorKey: 'exercise', header: 'Exercise' },
@@ -21,10 +21,9 @@ const exerciseColumns: ColumnDef<FitnessSession['exerciseDetails'][0]>[] = [
     { accessorKey: 'formNotes', header: 'Form Notes', cell: ({row}) => row.original.formNotes || 'N/A' },
 ];
 
-
 export default function FitnessPage() {
   const { firestore, user, isUserLoading } = useFirebase();
-  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const fitnessQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -34,26 +33,6 @@ export default function FitnessPage() {
   const { data: sessions, isLoading: sessionsLoading, error } = useCollection<FitnessSession>(fitnessQuery);
 
   const latestSession = sessions?.[0];
-
-  const handleNewSession = () => {
-    if (!firestore || !user) return;
-
-    const newSession: Omit<FitnessSession, 'id' | 'createdAt' | 'userId'> = {
-      routineName: "Dumbbell Destruction - Push Day",
-      exerciseDetails: [
-        { id: '1', exercise: 'Dumbbell Bench Press', sets: 4, reps: 10, weight: 13, rpe: 8 },
-        { id: '2', exercise: 'Dumbbell Overhead Press', sets: 4, reps: 12, weight: 8, rpe: 7 },
-        { id: '3', exercise: 'Dumbbell Lateral Raises', sets: 5, reps: 15, weight: 6, rpe: 9, formNotes: "Slight swing on last 2 reps" },
-      ]
-    };
-    
-    const sessionsCollectionRef = collection(firestore, `users/${user.uid}/exerciseSessions`);
-
-    addDocumentNonBlocking(sessionsCollectionRef, { ...newSession, userId: user.uid, createdAt: serverTimestamp() })
-        .then(() => {
-            toast({ title: "Workout logged!" });
-        });
-  }
 
   if (error) {
     return <div>Error: {error.message}</div>
@@ -66,7 +45,7 @@ export default function FitnessPage() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Fitness Optimization</h1>
           <p className="text-muted-foreground">Log workouts, track progress, and get intelligent progression from Firestore.</p>
         </div>
-        <Button onClick={handleNewSession} disabled={isUserLoading || sessionsLoading} className="w-full sm:w-auto">
+        <Button onClick={() => setIsDialogOpen(true)} disabled={isUserLoading || sessionsLoading} className="w-full sm:w-auto">
           <PlusCircle className="mr-2 h-4 w-4" />
           Log Workout
         </Button>
@@ -113,6 +92,7 @@ export default function FitnessPage() {
           </Card>
         </div>
       </div>
+      <NewFitnessSessionDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
     </div>
   );
 }

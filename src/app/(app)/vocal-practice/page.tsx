@@ -6,6 +6,7 @@ import { DataPageLayout } from '@/components/data/data-page-layout';
 import type { ColumnDef } from '@/components/data/data-table';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { NewVocalPracticeSessionDialog } from '@/components/vocal-practice/new-vocal-practice-session-dialog';
 
 const columns: ColumnDef<VocalPracticeSession>[] = [
   {
@@ -47,14 +48,6 @@ const columns: ColumnDef<VocalPracticeSession>[] = [
   },
 ];
 
-const newSession: Omit<VocalPracticeSession, 'id' | 'createdAt' | 'userId' | 'timeBlockId'> = {
-  curriculum: 'New Age Voice',
-  subCurriculum: 'The Diaphragm',
-  exercise: 'Lip Rolls',
-  performanceScore: 8,
-  strugglePointTag: 'High G#4',
-};
-
 export default function VocalPracticePage() {
   return (
     <DataPageLayout
@@ -62,7 +55,7 @@ export default function VocalPracticePage() {
       description="Track your singing sessions and performance scores from Firestore."
       collectionName="vocalPracticeSessions"
       columns={columns}
-      newItem={{...newSession, timeBlockId: 'temp-id'}}
+      NewItemDialog={NewVocalPracticeSessionDialog}
       emptyState={{
         icon: Mic,
         title: 'No vocal sessions logged yet.',

@@ -5,8 +5,8 @@ import type { Project } from '@/lib/types';
 import { DataPageLayout } from '@/components/data/data-page-layout';
 import type { ColumnDef } from '@/components/data/data-table';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { format } from 'date-fns';
+import { NewProjectDialog } from '@/components/projects/new-project-dialog';
 
 const statusColors: Record<Project['status'], string> = {
     'On Track': 'bg-green-500',
@@ -46,23 +46,7 @@ const columns: ColumnDef<Project>[] = [
         );
     }
   },
-  {
-    accessorKey: 'progress',
-    header: 'Progress',
-    cell: ({ row }) => {
-        // This would ideally come from a sub-collection of tasks
-        const progress = Math.floor(Math.random() * 100); 
-        return <Progress value={progress} className="h-2 w-[100px]" />;
-    }
-  }
 ];
-
-const newProject: Omit<Project, 'id' | 'createdAt' | 'userId'> = {
-  name: 'New AI Venture',
-  description: 'Develop a new AI-powered application.',
-  status: 'On Track',
-  progress: 0,
-};
 
 export default function ProjectsPage() {
   return (
@@ -71,7 +55,7 @@ export default function ProjectsPage() {
       description="Track your personal and professional projects from Firestore."
       collectionName="projects"
       columns={columns}
-      newItem={newProject}
+      NewItemDialog={NewProjectDialog}
       emptyState={{
         icon: PenSquare,
         title: 'No projects logged yet.',

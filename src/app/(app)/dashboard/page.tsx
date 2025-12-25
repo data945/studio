@@ -2,6 +2,7 @@
 import { Activity, Dumbbell, Timer, BrainCircuit, CheckCircle, XCircle, Mic, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CrossDomainInsights from '@/components/dashboard/cross-domain-insights';
+import TrendsChart from '@/components/dashboard/trends-chart';
 import { useState, useEffect } from 'react';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, Timestamp } from 'firebase/firestore';
@@ -23,28 +24,40 @@ export default function DashboardPage() {
   useEffect(() => {
     const today = new Date();
     const currentHour = today.getHours();
-    if (currentHour < 12) {
+    // Inverted schedule: Wake up at 14:00 (2 PM)
+    if (currentHour >= 14 && currentHour < 18) { // 2 PM - 6 PM
       setGreeting('Good morning');
-    } else if (currentHour < 18) {
+    } else if (currentHour >= 18 && currentHour < 22) { // 6 PM - 10 PM
       setGreeting('Good afternoon');
-    } else {
+    } else if (currentHour >= 22 || currentHour < 7) { // 10 PM - 7 AM
       setGreeting('Good evening');
+    } else { // 7 AM - 2 PM (Sleep time)
+      setGreeting('Time to sleep'); 
     }
   }, []);
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
+  const now = new Date();
+  const invertedTodayStart = new Date(now);
+  
+  // If it's before 2 PM, the "day" started yesterday at 2 PM.
+  if (now.getHours() < 14) {
+    invertedTodayStart.setDate(invertedTodayStart.getDate() - 1);
+  }
+  invertedTodayStart.setHours(14, 0, 0, 0);
+  
+  const invertedTodayEnd = new Date(invertedTodayStart);
+  invertedTodayEnd.setDate(invertedTodayEnd.getDate() + 1);
+  invertedTodayEnd.setHours(13, 59, 59, 999);
+
 
   const timeBlocksQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return query(
       collection(firestore, `users/${user.uid}/timeBlocks`),
-      where('startTime', '>=', Timestamp.fromDate(todayStart)),
-      where('startTime', '<=', Timestamp.fromDate(todayEnd))
+      where('startTime', '>=', Timestamp.fromDate(invertedTodayStart)),
+      where('startTime', '<=', Timestamp.fromDate(invertedTodayEnd))
     );
-  }, [firestore, user, todayStart, todayEnd]);
+  }, [firestore, user, invertedTodayStart, invertedTodayEnd]);
 
   const deepWorkQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -81,7 +94,7 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight font-headline">{greeting}, {user?.displayName || 'User'}.</h1>
-        <p className="text-muted-foreground">Here's your synergistic overview for today.</p>
+        <p className="text-muted-foreground">Here's your synergistic overview for your day.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -163,12 +176,12 @@ export default function DashboardPage() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Today's Schedule</CardTitle>
-            <CardDescription>A summary of your time-blocked activities for today.</CardDescription>
+            <CardDescription>Your schedule from 2 PM to 2 PM.</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading && <Loader2 className="h-8 w-8 animate-spin mx-auto my-8"/>}
             {!isLoading && (!timeBlocks || timeBlocks.length === 0) && (
-              <div className="text-center py-12 text-muted-foreground">No time blocks scheduled for today.</div>
+              <div className="text-center py-12 text-muted-foreground">No time blocks scheduled for this period.</div>
             )}
             {!isLoading && timeBlocks && timeBlocks.length > 0 && (
               <div className="space-y-4">
@@ -200,6 +213,10 @@ export default function DashboardPage() {
             <CrossDomainInsights />
           </CardContent>
         </Card>
+        
+        <div className="lg:col-span-3">
+            <TrendsChart />
+        </div>
       </div>
     </div>
   );

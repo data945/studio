@@ -6,6 +6,7 @@ import { DataPageLayout } from '@/components/data/data-page-layout';
 import type { ColumnDef } from '@/components/data/data-table';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { NewPhotographySessionDialog } from '@/components/photography/new-photography-session-dialog';
 
 const columns: ColumnDef<PhotographySession>[] = [
   {
@@ -47,13 +48,6 @@ const columns: ColumnDef<PhotographySession>[] = [
   },
 ];
 
-const newSession: Omit<PhotographySession, 'id' | 'createdAt' | 'userId' | 'timeBlockId'> = {
-  shotCounter: 50,
-  qualityAssessment: 3,
-  editingPipeline: 'Raw',
-  skillGapAnalysis: 'Struggled with low light focus.',
-};
-
 export default function PhotographyPage() {
   return (
     <DataPageLayout
@@ -61,7 +55,7 @@ export default function PhotographyPage() {
       description="Track your photo sessions, ratings, and workflow from Firestore."
       collectionName="photographySessions"
       columns={columns}
-      newItem={{...newSession, timeBlockId: 'temp-id'}}
+      NewItemDialog={NewPhotographySessionDialog}
       emptyState={{
         icon: Camera,
         title: 'No photography sessions logged yet.',

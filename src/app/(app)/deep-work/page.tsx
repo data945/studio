@@ -1,116 +1,79 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Loader2, PlusCircle } from "lucide-react";
-import { useFirebase, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, serverTimestamp } from "firebase/firestore";
-import type { DeepWorkSession } from "@/lib/types";
-import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
-import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { BrainCircuit } from 'lucide-react';
+import type { DeepWorkSession } from '@/lib/types';
+import { DataPageLayout } from '@/components/data/data-page-layout';
+import type { ColumnDef } from '@/components/data/data-table';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
 
+const columns: ColumnDef<DeepWorkSession>[] = [
+  {
+    accessorKey: 'createdAt',
+    header: 'Date',
+    cell: ({ row }) => {
+      const date = row.original.createdAt?.toDate();
+      return date ? format(date, 'yyyy-MM-dd') : 'N/A';
+    },
+  },
+  {
+    accessorKey: 'subject',
+    header: 'Subject',
+    cell: ({ row }) => <span className="font-medium">{row.original.subject}</span>,
+  },
+  {
+    accessorKey: 'topic',
+    header: 'Topic',
+  },
+  {
+    accessorKey: 'concept',
+    header: 'Concept',
+  },
+  {
+    accessorKey: 'confidenceScore',
+    header: 'Confidence',
+    cell: ({ row }) => {
+      const score = row.original.confidenceScore;
+      return (
+        <Badge
+          variant={score > 7 ? 'default' : score > 4 ? 'secondary' : 'destructive'}
+          className="bg-primary/20 text-primary hover:bg-primary/30"
+        >
+          {score}/10
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: 'blockageNotes',
+    header: 'Blockages',
+    cell: ({ row }) => <span className="text-muted-foreground max-w-xs truncate">{row.original.blockageNotes || 'None'}</span>,
+  },
+];
+
+const newSession: Omit<DeepWorkSession, 'id' | 'createdAt' | 'userId'> = {
+  timeBlockId: 'placeholder',
+  subject: 'Linear Algebra',
+  topic: 'Eigenvalues',
+  subtopic: 'Characteristic Polynomial',
+  concept: 'Finding Eigenvectors',
+  confidenceScore: 7,
+  blockageNotes: 'Struggled with the null space calculation.',
+};
 
 export default function DeepWorkPage() {
-    const { firestore, user, isUserLoading } = useFirebase();
-    const { toast } = useToast();
-
-    const deepWorkQuery = useMemoFirebase(() => {
-        if (!firestore || !user) return null;
-        return collection(firestore, `users/${user.uid}/deepWorkSessions`);
-    }, [firestore, user]);
-
-    const { data: sessions, isLoading: sessionsLoading, error } = useCollection<DeepWorkSession>(deepWorkQuery);
-
-    const handleNewSession = () => {
-        if (!firestore || !user) return;
-
-        const newSession: Omit<DeepWorkSession, 'id' | 'createdAt'> = {
-            userId: user.uid,
-            timeBlockId: 'placeholder',
-            subject: 'Linear Algebra',
-            topic: 'Eigenvalues',
-            concept: 'Characteristic Polynomial',
-            confidenceScore: 7,
-            blockageNotes: 'None',
-        };
-        
-        const sessionsCollectionRef = collection(firestore, `users/${user.uid}/deepWorkSessions`);
-
-        addDocumentNonBlocking(sessionsCollectionRef, { ...newSession, createdAt: serverTimestamp() })
-            .then(() => {
-                toast({ title: "Session logged!" });
-            });
-    }
-
-    if (error) {
-        return <div>Error: {error.message}</div>
-    }
-
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Deep Work</h1>
-          <p className="text-muted-foreground">Track study sessions, confidence, and blockages from Firestore.</p>
-        </div>
-        <Button onClick={handleNewSession} disabled={isUserLoading || sessionsLoading}>
-            <PlusCircle className="mr-2 h-4 w-4"/>
-            Log Session
-        </Button>
-      </div>
-
-      <Card>
-        <CardHeader>
-            <CardTitle>Session History</CardTitle>
-            <CardDescription>Your recent deep work and study sessions.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            {(isUserLoading || sessionsLoading) && <Loader2 className="h-8 w-8 animate-spin mx-auto my-8" />}
-            
-            {!isUserLoading && !sessionsLoading && sessions && sessions.length > 0 && (
-                <div className="w-full overflow-x-auto">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Subject</TableHead>
-                                <TableHead>Topic</TableHead>
-                                <TableHead>Concept</TableHead>
-                                <TableHead>Confidence</TableHead>
-                                <TableHead>Blockages</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {sessions.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis()).map((session) => (
-                                <TableRow key={session.id}>
-                                    <TableCell>{session.createdAt ? format(session.createdAt.toDate(), 'yyyy-MM-dd') : 'N/A'}</TableCell>
-                                    <TableCell className="font-medium">{session.subject}</TableCell>
-                                    <TableCell>{session.topic}</TableCell>
-                                    <TableCell>{session.concept}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={session.confidenceScore > 7 ? 'default' : session.confidenceScore > 4 ? 'secondary' : 'destructive'} className="bg-primary/20 text-primary hover:bg-primary/30">
-                                            {session.confidenceScore}/10
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground max-w-xs truncate">{session.blockageNotes || 'None'}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
-            )}
-
-            {!isUserLoading && !sessionsLoading && (!sessions || sessions.length === 0) && (
-                <div className="text-center py-12">
-                    <p className="text-muted-foreground">No deep work sessions logged yet.</p>
-                    <p className="text-muted-foreground">Click "Log Session" to get started.</p>
-                </div>
-            )}
-        </CardContent>
-      </Card>
-    </div>
+    <DataPageLayout
+      title="Deep Work"
+      description="Track study sessions, confidence, and blockages from Firestore."
+      collectionName="deepWorkSessions"
+      columns={columns}
+      newItem={newSession}
+      emptyState={{
+        icon: BrainCircuit,
+        title: 'No deep work sessions logged yet.',
+        description: 'Click "Log Session" to get started.',
+      }}
+    />
   );
 }

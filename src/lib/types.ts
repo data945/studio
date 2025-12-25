@@ -77,8 +77,6 @@ export type Project = {
   name: string;
   description: string;
   status: 'On Track' | 'At Risk' | 'Completed';
-  progress: number; // percentage
-  tasks?: Task[]; // This will be a subcollection, so it's optional on the main project object
   createdAt: Timestamp;
 };
 

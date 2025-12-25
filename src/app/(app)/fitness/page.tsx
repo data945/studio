@@ -1,16 +1,26 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dumbbell, Loader2, PlusCircle } from "lucide-react";
-import AdaptiveProgression from "@/components/fitness/adaptive-progression";
-import { useFirebase, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, serverTimestamp } from "firebase/firestore";
-import type { FitnessSession } from "@/lib/types";
-import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Dumbbell, Loader2, PlusCircle } from 'lucide-react';
+import AdaptiveProgression from '@/components/fitness/adaptive-progression';
+import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, serverTimestamp, query, orderBy, limit } from 'firebase/firestore';
+import type { FitnessSession } from '@/lib/types';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+import { DataTable, type ColumnDef } from '@/components/data/data-table';
+
+const exerciseColumns: ColumnDef<FitnessSession['exerciseDetails'][0]>[] = [
+    { accessorKey: 'exercise', header: 'Exercise' },
+    { accessorKey: 'sets', header: 'Sets' },
+    { accessorKey: 'reps', header: 'Reps' },
+    { accessorKey: 'weight', header: 'Weight (kg)'},
+    { accessorKey: 'rpe', header: 'RPE' },
+    { accessorKey: 'formNotes', header: 'Form Notes', cell: ({row}) => row.original.formNotes || 'N/A' },
+];
+
 
 export default function FitnessPage() {
   const { firestore, user, isUserLoading } = useFirebase();
@@ -18,18 +28,17 @@ export default function FitnessPage() {
 
   const fitnessQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return collection(firestore, `users/${user.uid}/exerciseSessions`);
+    return query(collection(firestore, `users/${user.uid}/exerciseSessions`), orderBy('createdAt', 'desc'), limit(1));
   }, [firestore, user]);
 
   const { data: sessions, isLoading: sessionsLoading, error } = useCollection<FitnessSession>(fitnessQuery);
 
-  const latestSession = sessions ? sessions.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis())[0] : null;
+  const latestSession = sessions?.[0];
 
   const handleNewSession = () => {
     if (!firestore || !user) return;
 
-    const newSession: Omit<FitnessSession, 'id' | 'createdAt'> = {
-      userId: user.uid,
+    const newSession: Omit<FitnessSession, 'id' | 'createdAt' | 'userId'> = {
       routineName: "Dumbbell Destruction - Push Day",
       exerciseDetails: [
         { id: '1', exercise: 'Dumbbell Bench Press', sets: 4, reps: 10, weight: 13, rpe: 8 },
@@ -40,7 +49,7 @@ export default function FitnessPage() {
     
     const sessionsCollectionRef = collection(firestore, `users/${user.uid}/exerciseSessions`);
 
-    addDocumentNonBlocking(sessionsCollectionRef, { ...newSession, createdAt: serverTimestamp() })
+    addDocumentNonBlocking(sessionsCollectionRef, { ...newSession, userId: user.uid, createdAt: serverTimestamp() })
         .then(() => {
             toast({ title: "Workout logged!" });
         });
@@ -83,32 +92,7 @@ export default function FitnessPage() {
                       </div>
                     )}
                     {latestSession && (
-                      <div className="w-full overflow-x-auto">
-                      <Table>
-                          <TableHeader>
-                              <TableRow>
-                                  <TableHead>Exercise</TableHead>
-                                  <TableHead>Sets</TableHead>
-                                  <TableHead>Reps</TableHead>
-                                  <TableHead>Weight (kg)</TableHead>
-                                  <TableHead>RPE</TableHead>
-                                  <TableHead>Form Notes</TableHead>
-                              </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                              {latestSession.exerciseDetails.map((log) => (
-                                  <TableRow key={log.id}>
-                                      <TableCell className="font-medium">{log.exercise}</TableCell>
-                                      <TableCell>{log.sets}</TableCell>
-                                      <TableCell>{log.reps}</TableCell>
-                                      <TableCell>{log.weight}</TableCell>
-                                      <TableCell>{log.rpe}</TableCell>
-                                      <TableCell className="text-muted-foreground">{log.formNotes || 'N/A'}</TableCell>
-                                  </TableRow>
-                              ))}
-                          </TableBody>
-                      </Table>
-                      </div>
+                      <DataTable columns={exerciseColumns} data={latestSession.exerciseDetails} />
                     )}
                 </CardContent>
             </Card>

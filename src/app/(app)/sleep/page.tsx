@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Clock, Bed, AlertCircle, Loader2 } from "lucide-react";
 import { useFirebase, useCollection, useMemoFirebase } from "@/firebase";
 import type { SleepLog } from "@/lib/types";
-import { collection, serverTimestamp } from "firebase/firestore";
+import { collection, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -17,7 +17,7 @@ export default function SleepPage() {
 
   const sleepQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return collection(firestore, `users/${user.uid}/sleepOptimizations`);
+    return query(collection(firestore, `users/${user.uid}/sleepOptimizations`), orderBy('createdAt', 'desc'));
   }, [firestore, user]);
 
   const { data: sleepLogs, isLoading: logsLoading, error } = useCollection<SleepLog>(sleepQuery);
@@ -25,8 +25,7 @@ export default function SleepPage() {
   const handleNewLog = () => {
     if (!firestore || !user) return;
     
-    const newLog: Omit<SleepLog, 'id' | 'createdAt'> = {
-        userId: user.uid,
+    const newLog: Omit<SleepLog, 'id' | 'createdAt' | 'userId'> = {
         plannedBedtime: '22:00',
         actualBedtime: '22:30',
         quality: 7,
@@ -35,7 +34,7 @@ export default function SleepPage() {
 
     const sleepCollectionRef = collection(firestore, `users/${user.uid}/sleepOptimizations`);
 
-    addDocumentNonBlocking(sleepCollectionRef, { ...newLog, createdAt: serverTimestamp() })
+    addDocumentNonBlocking(sleepCollectionRef, { ...newLog, userId: user.uid, createdAt: serverTimestamp() })
         .then(() => {
             toast({ title: "Sleep log added!" });
         });
@@ -47,12 +46,12 @@ export default function SleepPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight font-headline">Sleep Optimization</h1>
           <p className="text-muted-foreground">Track actual vs. planned sleep, quality, and obstacles from Firestore.</p>
         </div>
-        <Button onClick={handleNewLog} disabled={isUserLoading || logsLoading}>
+        <Button onClick={handleNewLog} disabled={isUserLoading || logsLoading} className="w-full sm:w-auto">
             <PlusCircle className="mr-2 h-4 w-4"/>
             Log Sleep
         </Button>
@@ -68,7 +67,7 @@ export default function SleepPage() {
       
       {!isUserLoading && !logsLoading && sleepLogs && sleepLogs.length > 0 && (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {sleepLogs.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis()).map(log => (
+          {sleepLogs.map(log => (
               <Card key={log.id}>
                   <CardHeader>
                       <CardTitle>{log.createdAt ? format(log.createdAt.toDate(), 'yyyy-MM-dd') : 'N/A'}</CardTitle>

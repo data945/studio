@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useFirebase, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, doc } from "firebase/firestore";
+import { collection, doc, serverTimestamp } from "firebase/firestore";
 import type { Project, Task } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
@@ -31,6 +31,7 @@ function ProjectCard({ project }: { project: Project }) {
 
     const completedTasks = tasks?.filter(t => t.completed).length || 0;
     const totalTasks = tasks?.length || 0;
+    const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
     const handleToggleTask = (task: Task) => {
         if (!firestore || !user) return;
@@ -49,7 +50,7 @@ function ProjectCard({ project }: { project: Project }) {
 
         const tasksCollectionRef = collection(firestore, `users/${user.uid}/projects/${project.id}/tasks`);
 
-        addDocumentNonBlocking(tasksCollectionRef, { ...newTask, createdAt: new Date() })
+        addDocumentNonBlocking(tasksCollectionRef, { ...newTask, createdAt: serverTimestamp() })
             .then(() => {
                 toast({ title: "Task added!" });
             });
@@ -71,9 +72,9 @@ function ProjectCard({ project }: { project: Project }) {
                 <div>
                     <div className="flex justify-between items-center mb-1">
                         <span className="text-sm font-medium">Progress</span>
-                        <span className="text-sm text-muted-foreground">{project.progress}%</span>
+                        <span className="text-sm text-muted-foreground">{progress.toFixed(0)}%</span>
                     </div>
-                    <Progress value={project.progress} className="h-2"/>
+                    <Progress value={progress} className="h-2"/>
                 </div>
                 
                 <Accordion type="single" collapsible className="w-full">
@@ -118,17 +119,15 @@ export default function ProjectsPage() {
     const handleNewProject = () => {
         if (!firestore || !user) return;
         
-        const newProject: Omit<Project, 'id' | 'createdAt'> = {
-            userId: user.uid,
+        const newProject: Omit<Project, 'id' | 'createdAt' | 'userId'> = {
             name: 'New Project',
             description: 'A new awesome project.',
             status: 'On Track',
-            progress: 0,
         };
 
         const projectsCollectionRef = collection(firestore, `users/${user.uid}/projects`);
 
-        addDocumentNonBlocking(projectsCollectionRef, { ...newProject, createdAt: new Date() })
+        addDocumentNonBlocking(projectsCollectionRef, { ...newProject, userId: user.uid, createdAt: serverTimestamp() })
             .then(() => {
                 toast({ title: "Project created!" });
             })

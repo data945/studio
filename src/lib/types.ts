@@ -38,11 +38,12 @@ export type FitnessSession = {
 
 export type SleepLog = {
     id: string;
-    date: string;
+    userId: string;
     plannedBedtime: string;
     actualBedtime: string;
     quality: number; // 1-10
     obstacles: string[];
+    createdAt: Timestamp;
 }
 
 export type Task = {

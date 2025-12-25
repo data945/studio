@@ -1,0 +1,718 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Synergistic Life Engine.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "username": {
+          "type": "string",
+          "description": "Username of the user."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "username",
+        "createdAt"
+      ]
+    },
+    "TimeBlock": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TimeBlock",
+      "type": "object",
+      "description": "Represents a scheduled time block in the user's day.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the time block entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N TimeBlock)"
+        },
+        "startTime": {
+          "type": "string",
+          "description": "Start time of the time block.",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "End time of the time block.",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the activity planned for this time block."
+        },
+        "domain": {
+          "type": "string",
+          "description": "Life domain associated with this time block (e.g., Deep Work, Exercise, Sleep)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "startTime",
+        "endTime",
+        "description",
+        "domain"
+      ]
+    },
+    "DeepWorkSession": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DeepWorkSession",
+      "type": "object",
+      "description": "Represents a deep work or study session.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the deep work session entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N DeepWorkSession)"
+        },
+        "timeBlockId": {
+          "type": "string",
+          "description": "Reference to TimeBlock. (Relationship: TimeBlock 1:1 DeepWorkSession)"
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject of the deep work session."
+        },
+        "topic": {
+          "type": "string",
+          "description": "Topic of the deep work session."
+        },
+        "subtopic": {
+          "type": "string",
+          "description": "Subtopic of the deep work session."
+        },
+        "concept": {
+          "type": "string",
+          "description": "Concept studied during the deep work session."
+        },
+        "confidenceScore": {
+          "type": "number",
+          "description": "Confidence score (1-10) for mastery of the concept."
+        },
+        "blockageNotes": {
+          "type": "string",
+          "description": "Notes on any blockages or difficulties encountered."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "timeBlockId",
+        "subject",
+        "topic",
+        "concept",
+        "confidenceScore"
+      ]
+    },
+    "Project": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Project",
+      "type": "object",
+      "description": "Represents a project being tracked.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the project entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Project)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the project."
+        },
+        "lifecycleStage": {
+          "type": "string",
+          "description": "Current lifecycle stage of the project (Idea, Planning, Active Development, Blocked, Complete)."
+        },
+        "domainTag": {
+          "type": "string",
+          "description": "Domain this project falls under (e.g., math, programming)."
+        },
+        "blockers": {
+          "type": "string",
+          "description": "Category for blockers encountered (technical, knowledge gap, resource)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "lifecycleStage",
+        "domainTag"
+      ]
+    },
+    "ExerciseSession": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ExerciseSession",
+      "type": "object",
+      "description": "Represents an exercise session.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the exercise session entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N ExerciseSession)"
+        },
+        "timeBlockId": {
+          "type": "string",
+          "description": "Reference to TimeBlock. (Relationship: TimeBlock 1:1 ExerciseSession)"
+        },
+        "routineName": {
+          "type": "string",
+          "description": "Name of the exercise routine."
+        },
+        "exerciseDetails": {
+          "type": "string",
+          "description": "Details of the exercises performed."
+        },
+        "formFeedback": {
+          "type": "string",
+          "description": "Notes on exercise form and technique."
+        },
+        "recoveryNotes": {
+          "type": "string",
+          "description": "Notes on recovery and external factors."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "timeBlockId",
+        "routineName",
+        "exerciseDetails"
+      ]
+    },
+    "VocalPracticeSession": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VocalPracticeSession",
+      "type": "object",
+      "description": "Represents a vocal/singing practice session.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the vocal practice session entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N VocalPracticeSession)"
+        },
+        "timeBlockId": {
+          "type": "string",
+          "description": "Reference to TimeBlock. (Relationship: TimeBlock 1:1 VocalPracticeSession)"
+        },
+        "curriculum": {
+          "type": "string",
+          "description": "The lesson being practiced."
+        },
+        "subCurriculum": {
+          "type": "string",
+          "description": "The sub-lesson within the lesson."
+        },
+        "exercise": {
+          "type": "string",
+          "description": "The exercise being used in the sub-lesson."
+        },
+        "performanceScore": {
+          "type": "number",
+          "description": "Scores from practice apps."
+        },
+        "strugglePointTag": {
+          "type": "string",
+          "description": "Timestamps where technique fails."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "timeBlockId",
+        "curriculum"
+      ]
+    },
+    "PhotographySession": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PhotographySession",
+      "type": "object",
+      "description": "Represents a photography workflow tracking.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the photography session entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N PhotographySession)"
+        },
+        "timeBlockId": {
+          "type": "string",
+          "description": "Reference to TimeBlock. (Relationship: TimeBlock 1:1 PhotographySession)"
+        },
+        "shotCounter": {
+          "type": "number",
+          "description": "Daily/weekly totals."
+        },
+        "qualityAssessment": {
+          "type": "number",
+          "description": "1-5 star rating system."
+        },
+        "editingPipeline": {
+          "type": "string",
+          "description": "Status (Raw, Basic Edit, Advanced, Published)."
+        },
+        "publishingDashboard": {
+          "type": "string",
+          "description": "Links to published work."
+        },
+        "skillGapAnalysis": {
+          "type": "string",
+          "description": "Recurring technical issues (focus, exposure)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "timeBlockId",
+        "shotCounter",
+        "qualityAssessment"
+      ]
+    },
+    "YoutubeLectureProduction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "YoutubeLectureProduction",
+      "type": "object",
+      "description": "Represents a YouTube Lecture Production System.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the YouTube Lecture Production entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N YoutubeLectureProduction)"
+        },
+        "timeBlockId": {
+          "type": "string",
+          "description": "Reference to TimeBlock. (Relationship: TimeBlock 1:1 YoutubeLectureProduction)"
+        },
+        "workflowStage": {
+          "type": "string",
+          "description": "Learning, Scripting, Recording, Audio Enhancement, Visual Enhancement, Publishing, Analytics Review."
+        },
+        "syllabusAlignment": {
+          "type": "string",
+          "description": "Academic curricula mapping."
+        },
+        "qualityFeedbackLoop": {
+          "type": "string",
+          "description": "Notes on technical issues."
+        },
+        "performanceAnalyticsIntegration": {
+          "type": "string",
+          "description": "YouTube analytics for viewer engagement."
+        },
+        "revisionTracking": {
+          "type": "string",
+          "description": "Version history."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "timeBlockId",
+        "workflowStage"
+      ]
+    },
+    "SleepOptimization": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SleepOptimization",
+      "type": "object",
+      "description": "Represents the Sleep Optimization System.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the sleep optimization entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N SleepOptimization)"
+        },
+        "timeBlockId": {
+          "type": "string",
+          "description": "Reference to TimeBlock. (Relationship: TimeBlock 1:1 SleepOptimization)"
+        },
+        "actualVsPlannedTracking": {
+          "type": "string",
+          "description": "Log when you actually fell asleep vs intended time."
+        },
+        "qualityAssessment": {
+          "type": "number",
+          "description": "1-10 scale with factors (restfulness, dreams, interruptions)."
+        },
+        "obstacleLogging": {
+          "type": "string",
+          "description": "Tag reasons for poor sleep (stress, caffeine, environment)."
+        },
+        "patternRecognition": {
+          "type": "string",
+          "description": "Correlations between daytime activities and sleep quality."
+        },
+        "smartWakeUp": {
+          "type": "string",
+          "description": "Gradual alarm adjustment based on sleep cycle data."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "timeBlockId",
+        "actualVsPlannedTracking",
+        "qualityAssessment"
+      ]
+    },
+    "NutritionDiet": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "NutritionDiet",
+      "type": "object",
+      "description": "Represents the Nutrition & Diet Tracking.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the nutrition & diet entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N NutritionDiet)"
+        },
+        "timeBlockId": {
+          "type": "string",
+          "description": "Reference to TimeBlock. (Relationship: TimeBlock 1:1 NutritionDiet)"
+        },
+        "mealPlanningIntegration": {
+          "type": "string",
+          "description": "Pre-loaded meal plans from uploaded documents."
+        },
+        "macroTracking": {
+          "type": "string",
+          "description": "Calories, protein, carbs, fat per meal."
+        },
+        "quickLogging": {
+          "type": "string",
+          "description": "Barcode scanning + voice input for fast food logging."
+        },
+        "budgetAwareness": {
+          "type": "string",
+          "description": "Alerts when approaching daily calorie/macros limits."
+        },
+        "symptomCorrelation": {
+          "type": "string",
+          "description": "Link food intake to energy levels, mood, performance."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "timeBlockId",
+        "mealPlanningIntegration"
+      ]
+    },
+    "ExpenseManagement": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ExpenseManagement",
+      "type": "object",
+      "description": "Represents the Expense Management.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the expense management entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N ExpenseManagement)"
+        },
+        "timeBlockId": {
+          "type": "string",
+          "description": "Reference to TimeBlock. (Relationship: TimeBlock 1:1 ExpenseManagement)"
+        },
+        "monthlyBudgetDashboard": {
+          "type": "number",
+          "description": "Real-time remaining budget display."
+        },
+        "categoryTracking": {
+          "type": "string",
+          "description": "Auto-categorize expenses (learning materials, equipment, food, etc.)."
+        },
+        "spendingAlerts": {
+          "type": "string",
+          "description": "Notifications at 50%, 75%, 90% of budget thresholds."
+        },
+        "roiAnalysis": {
+          "type": "string",
+          "description": "Tag expenses by life domain impact."
+        },
+        "receiptCapture": {
+          "type": "string",
+          "description": "Photo upload with OCR for automatic data extraction."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "timeBlockId",
+        "monthlyBudgetDashboard"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. Only the authenticated user (or admin) can access this data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/timeBlocks/{timeBlockId}",
+        "definition": {
+          "entityName": "TimeBlock",
+          "schema": {
+            "$ref": "#/backend/entities/TimeBlock"
+          },
+          "description": "Stores time block information for each user.  Path-based ownership ensures only the user can read/write their own time blocks.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "timeBlockId",
+              "description": "The unique identifier for the time block."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/deepWorkSessions/{deepWorkSessionId}",
+        "definition": {
+          "entityName": "DeepWorkSession",
+          "schema": {
+            "$ref": "#/backend/entities/DeepWorkSession"
+          },
+          "description": "Stores deep work session data for each user. Path-based ownership ensures only the user can read/write their own sessions.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "deepWorkSessionId",
+              "description": "The unique identifier for the deep work session."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/projects/{projectId}",
+        "definition": {
+          "entityName": "Project",
+          "schema": {
+            "$ref": "#/backend/entities/Project"
+          },
+          "description": "Stores project data for each user. Path-based ownership ensures only the user can read/write their own projects.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "projectId",
+              "description": "The unique identifier for the project."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/exerciseSessions/{exerciseSessionId}",
+        "definition": {
+          "entityName": "ExerciseSession",
+          "schema": {
+            "$ref": "#/backend/entities/ExerciseSession"
+          },
+          "description": "Stores exercise session data for each user. Path-based ownership ensures only the user can read/write their own sessions.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "exerciseSessionId",
+              "description": "The unique identifier for the exercise session."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/vocalPracticeSessions/{vocalPracticeSessionId}",
+        "definition": {
+          "entityName": "VocalPracticeSession",
+          "schema": {
+            "$ref": "#/backend/entities/VocalPracticeSession"
+          },
+          "description": "Stores vocal practice session data for each user. Path-based ownership ensures only the user can read/write their own sessions.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "vocalPracticeSessionId",
+              "description": "The unique identifier for the vocal practice session."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/photographySessions/{photographySessionId}",
+        "definition": {
+          "entityName": "PhotographySession",
+          "schema": {
+            "$ref": "#/backend/entities/PhotographySession"
+          },
+          "description": "Stores photography session data for each user. Path-based ownership ensures only the user can read/write their own sessions.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "photographySessionId",
+              "description": "The unique identifier for the photography session."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/youtubeLectureProductions/{youtubeLectureProductionId}",
+        "definition": {
+          "entityName": "YoutubeLectureProduction",
+          "schema": {
+            "$ref": "#/backend/entities/YoutubeLectureProduction"
+          },
+          "description": "Stores YouTube lecture production data for each user. Path-based ownership ensures only the user can read/write their own data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "youtubeLectureProductionId",
+              "description": "The unique identifier for the YouTube lecture production."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/sleepOptimizations/{sleepOptimizationId}",
+        "definition": {
+          "entityName": "SleepOptimization",
+          "schema": {
+            "$ref": "#/backend/entities/SleepOptimization"
+          },
+          "description": "Stores sleep optimization data for each user. Path-based ownership ensures only the user can read/write their own data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "sleepOptimizationId",
+              "description": "The unique identifier for the sleep optimization entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/nutritionDiets/{nutritionDietId}",
+        "definition": {
+          "entityName": "NutritionDiet",
+          "schema": {
+            "$ref": "#/backend/entities/NutritionDiet"
+          },
+          "description": "Stores nutrition and diet tracking data for each user. Path-based ownership ensures only the user can read/write their own data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "nutritionDietId",
+              "description": "The unique identifier for the nutrition and diet entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/expenseManagements/{expenseManagementId}",
+        "definition": {
+          "entityName": "ExpenseManagement",
+          "schema": {
+            "$ref": "#/backend/entities/ExpenseManagement"
+          },
+          "description": "Stores expense management data for each user. Path-based ownership ensures only the user can read/write their own data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "expenseManagementId",
+              "description": "The unique identifier for the expense management entry."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support a comprehensive life optimization and tracking system. It uses path-based ownership for user-specific data and incorporates denormalization where necessary to maintain authorization independence. Each top-level entity is stored under a user-specific path (`/users/{userId}/<entityName>`). This structure allows for easy querying and secures data access at the user level. This design avoids hierarchical authorization dependencies and promotes atomic operations (transactions/batches). Authorization independence is achieved by restricting all reads and writes to a user's path, ensuring that rules do not need to rely on `get()` calls to parent documents. For example, the `/users/{userId}/timeBlocks/{timeBlockId}` path structure inherently limits access to time blocks owned by the specified user. This pattern is consistent across all other entities like `DeepWorkSession`, `Project`, and `ExerciseSession`. This design also supports secure list operations, as the rules can simply check if `request.auth.uid == userId` to allow listing of all documents within the user's collection. Furthermore, the consistent use of user-owned subcollections for core data ensures a homogeneous security posture, making rules more predictable and easier to manage. Time-based data has a clear hierarchy, like `users/{userId}/timeBlocks/{timeBlockId}` for chronological data, streamlining queries for time-series analysis and reporting."
+  }
+}

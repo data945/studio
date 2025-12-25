@@ -1,0 +1,269 @@
+rules_version = '2';
+
+/**
+ * This ruleset enforces a strict user-ownership model for a comprehensive life 
+ * optimization and tracking application. All data is private and can only be
+ * accessed by the authenticated user who created it.
+ *
+ * Core Philosophy:
+ * The security model is built on the principle of least privilege. Users have full
+ * control over their own data, but no access to anyone else's. There is no
+ * public or shared data.
+ *
+ * Data Structure:
+ * All application data is organized hierarchically under the `/users/{userId}`
+ * path. Each user has their own "data silo" containing their personal 
+ * subcollections (e.g., timeBlocks, projects, sessions). This structure ensures
+ * that security rules can be simple, performant, and consistently applied.
+ *
+ * Key Security Decisions:
+ * - User Isolation: All rules are scoped to a specific user via the `{userId}`
+ *   wildcard. A user can only interact with documents where `{userId}` matches
+ *   their own authentication UID.
+ * - No User Enumeration: Listing the top-level `/users` collection is explicitly
+ *   disallowed to protect user privacy and prevent data scraping.
+ * - Path and Data Consistency: On creation, rules enforce that a document's
+ *   internal `userId` field matches the `userId` in its path, ensuring
+ *   relational integrity. This ownership link is immutable on updates.
+ * - Prototyping Flexibility: While authorization is strict, these rules do not
+ *   validate the specific shape or data types of documents, allowing for rapid
+ *   frontend development and iteration.
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =====================================================================
+    // Helper Functions
+    // =====================================================================
+
+    /**
+     * Returns true if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Returns true if the authenticated user's UID matches the provided userId.
+     * This is the primary function for enforcing data ownership.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Returns true if the document exists and the user is the owner.
+     * Used for safe update and delete operations.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+    
+    /**
+     * Validates that a new User document contains an `id` field that
+     * correctly matches the document's path `userId`.
+     */
+    function hasValidUserDataOnCreate(userId) {
+      return request.resource.data.id == userId;
+    }
+
+    /**
+     * Enforces immutability of the User document's `id` field on update.
+     */
+    function isUserDataImmutable() {
+      return request.resource.data.id == resource.data.id;
+    }
+
+    /**
+     * Validates that a new subcollection document (e.g., TimeBlock, Project)
+     * contains a `userId` field that matches the parent path's `userId`.
+     */
+    function hasValidSubcollectionDataOnCreate(userId) {
+      return request.resource.data.userId == userId;
+    }
+
+    /**
+     * Enforces immutability of a subcollection document's `userId` field on update.
+     */
+    function isSubcollectionDataImmutable() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    // =====================================================================
+    // User Profile Rules
+    // =====================================================================
+
+    /**
+     * @description Controls access to a user's own profile document.
+     * @path /users/{userId}
+     * @allow (create) A new user `auth.uid: 'user_abc'` creating their own profile at `/users/user_abc`.
+     * @allow (get) An existing user `auth.uid: 'user_abc'` reading their own profile at `/users/user_abc`.
+     * @deny (list) Any user attempting to list all documents in the `/users` collection.
+     * @deny (update) A user `auth.uid: 'user_xyz'` trying to update the profile of `user_abc`.
+     * @principle Restricts access to a user's own profile and allows self-creation.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Disallow user enumeration for security
+      allow create: if isOwner(userId) && hasValidUserDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isUserDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    // =====================================================================
+    // User Subcollection Rules
+    // These rules apply a consistent ownership model to all user-owned data.
+    // =====================================================================
+
+    /**
+     * @description Secures a user's time blocks.
+     * @path /users/{userId}/timeBlocks/{timeBlockId}
+     * @allow (create, get, list, update, delete) User `auth.uid: 'user_abc'` accessing any document under `/users/user_abc/timeBlocks`.
+     * @deny (create, get, list, update, delete) User `auth.uid: 'user_xyz'` accessing any document under `/users/user_abc/timeBlocks`.
+     * @principle Enforces strict data ownership within a user's data tree.
+     */
+    match /users/{userId}/timeBlocks/{timeBlockId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures a user's deep work sessions.
+     * @path /users/{userId}/deepWorkSessions/{deepWorkSessionId}
+     * @allow (create, get, list, update, delete) User `auth.uid: 'user_abc'` accessing any document under `/users/user_abc/deepWorkSessions`.
+     * @deny (create, get, list, update, delete) User `auth.uid: 'user_xyz'` accessing any document under `/users/user_abc/deepWorkSessions`.
+     * @principle Enforces strict data ownership within a user's data tree.
+     */
+    match /users/{userId}/deepWorkSessions/{deepWorkSessionId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures a user's projects.
+     * @path /users/{userId}/projects/{projectId}
+     * @allow (create, get, list, update, delete) User `auth.uid: 'user_abc'` accessing any document under `/users/user_abc/projects`.
+     * @deny (create, get, list, update, delete) User `auth.uid: 'user_xyz'` accessing any document under `/users/user_abc/projects`.
+     * @principle Enforces strict data ownership within a user's data tree.
+     */
+    match /users/{userId}/projects/{projectId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures a user's exercise sessions.
+     * @path /users/{userId}/exerciseSessions/{exerciseSessionId}
+     * @allow (create, get, list, update, delete) User `auth.uid: 'user_abc'` accessing any document under `/users/user_abc/exerciseSessions`.
+     * @deny (create, get, list, update, delete) User `auth.uid: 'user_xyz'` accessing any document under `/users/user_abc/exerciseSessions`.
+     * @principle Enforces strict data ownership within a user's data tree.
+     */
+    match /users/{userId}/exerciseSessions/{exerciseSessionId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures a user's vocal practice sessions.
+     * @path /users/{userId}/vocalPracticeSessions/{vocalPracticeSessionId}
+     * @allow (create, get, list, update, delete) User `auth.uid: 'user_abc'` accessing any document under `/users/user_abc/vocalPracticeSessions`.
+     * @deny (create, get, list, update, delete) User `auth.uid: 'user_xyz'` accessing any document under `/users/user_abc/vocalPracticeSessions`.
+     * @principle Enforces strict data ownership within a user's data tree.
+     */
+    match /users/{userId}/vocalPracticeSessions/{vocalPracticeSessionId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures a user's photography sessions.
+     * @path /users/{userId}/photographySessions/{photographySessionId}
+     * @allow (create, get, list, update, delete) User `auth.uid: 'user_abc'` accessing any document under `/users/user_abc/photographySessions`.
+     * @deny (create, get, list, update, delete) User `auth.uid: 'user_xyz'` accessing any document under `/users/user_abc/photographySessions`.
+     * @principle Enforces strict data ownership within a user's data tree.
+     */
+    match /users/{userId}/photographySessions/{photographySessionId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures a user's YouTube lecture production data.
+     * @path /users/{userId}/youtubeLectureProductions/{youtubeLectureProductionId}
+     * @allow (create, get, list, update, delete) User `auth.uid: 'user_abc'` accessing any document under `/users/user_abc/youtubeLectureProductions`.
+     * @deny (create, get, list, update, delete) User `auth.uid: 'user_xyz'` accessing any document under `/users/user_abc/youtubeLectureProductions`.
+     * @principle Enforces strict data ownership within a user's data tree.
+     */
+    match /users/{userId}/youtubeLectureProductions/{youtubeLectureProductionId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures a user's sleep optimization data.
+     * @path /users/{userId}/sleepOptimizations/{sleepOptimizationId}
+     * @allow (create, get, list, update, delete) User `auth.uid: 'user_abc'` accessing any document under `/users/user_abc/sleepOptimizations`.
+     * @deny (create, get, list, update, delete) User `auth.uid: 'user_xyz'` accessing any document under `/users/user_abc/sleepOptimizations`.
+     * @principle Enforces strict data ownership within a user's data tree.
+     */
+    match /users/{userId}/sleepOptimizations/{sleepOptimizationId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures a user's nutrition and diet data.
+     * @path /users/{userId}/nutritionDiets/{nutritionDietId}
+     * @allow (create, get, list, update, delete) User `auth.uid: 'user_abc'` accessing any document under `/users/user_abc/nutritionDiets`.
+     * @deny (create, get, list, update, delete) User `auth.uid: 'user_xyz'` accessing any document under `/users/user_abc/nutritionDiets`.
+     * @principle Enforces strict data ownership within a user's data tree.
+     */
+    match /users/{userId}/nutritionDiets/{nutritionDietId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures a user's expense management data.
+     * @path /users/{userId}/expenseManagements/{expenseManagementId}
+     * @allow (create, get, list, update, delete) User `auth.uid: 'user_abc'` accessing any document under `/users/user_abc/expenseManagements`.
+     * @deny (create, get, list, update, delete) User `auth.uid: 'user_xyz'` accessing any document under `/users/user_abc/expenseManagements`.
+     * @principle Enforces strict data ownership within a user's data tree.
+     */
+    match /users/{userId}/expenseManagements/{expenseManagementId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+  }
+}

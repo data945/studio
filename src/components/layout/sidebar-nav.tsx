@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -73,12 +74,10 @@ export function SidebarNav() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref>
-                <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.label}>
-                  <div>
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </div>
+              <Link href={item.href} passHref asChild>
+                <SidebarMenuButton isActive={pathname === item.href} tooltip={item.label}>
+                  <item.icon />
+                  <span>{item.label}</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
@@ -89,12 +88,10 @@ export function SidebarNav() {
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Tracking</p>
           {trackingModules.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref>
-                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                  <div>
+              <Link href={item.href} passHref asChild>
+                <SidebarMenuButton isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                     <item.icon />
                     <span>{item.label}</span>
-                  </div>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
@@ -105,12 +102,10 @@ export function SidebarNav() {
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Analysis</p>
           {analysisModules.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref>
-                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                  <div>
+              <Link href={item.href} passHref asChild>
+                <SidebarMenuButton isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                     <item.icon />
                     <span>{item.label}</span>
-                  </div>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>

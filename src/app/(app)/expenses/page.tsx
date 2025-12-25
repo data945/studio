@@ -48,12 +48,12 @@ export default function ExpensesPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight font-headline">Expense Management</h1>
           <p className="text-muted-foreground">Track your expenses and manage your budget from Firestore.</p>
         </div>
-        <Button onClick={handleNewExpense} disabled={isUserLoading || expensesLoading}>
+        <Button onClick={handleNewExpense} disabled={isUserLoading || expensesLoading} className="w-full sm:w-auto">
             <PlusCircle className="mr-2 h-4 w-4"/>
             Log Expense
         </Button>
@@ -70,26 +70,28 @@ export default function ExpensesPage() {
             {(isUserLoading || expensesLoading) && <Loader2 className="h-8 w-8 animate-spin mx-auto my-8" />}
             
             {!isUserLoading && !expensesLoading && expenses && expenses.length > 0 && (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Description</TableHead>
-                            <TableHead>Category</TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {expenses.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis()).map((expense) => (
-                            <TableRow key={expense.id}>
-                                <TableCell>{expense.createdAt ? format(expense.createdAt.toDate(), 'yyyy-MM-dd') : 'N/A'}</TableCell>
-                                <TableCell className="font-medium">{expense.description}</TableCell>
-                                <TableCell>{expense.category}</TableCell>
-                                <TableCell className="text-right font-mono">${expense.amount.toFixed(2)}</TableCell>
+                 <div className="w-full overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Description</TableHead>
+                                <TableHead>Category</TableHead>
+                                <TableHead className="text-right">Amount</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {expenses.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis()).map((expense) => (
+                                <TableRow key={expense.id}>
+                                    <TableCell>{expense.createdAt ? format(expense.createdAt.toDate(), 'yyyy-MM-dd') : 'N/A'}</TableCell>
+                                    <TableCell className="font-medium">{expense.description}</TableCell>
+                                    <TableCell>{expense.category}</TableCell>
+                                    <TableCell className="text-right font-mono">${expense.amount.toFixed(2)}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
             )}
 
             {!isUserLoading && !expensesLoading && (!expenses || expenses.length === 0) && (

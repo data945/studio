@@ -16,6 +16,7 @@ import {
   Moon,
   PenSquare,
   Timer,
+  UserCircle,
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -27,6 +28,8 @@ import {
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { useFirebase } from '@/firebase';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -53,6 +56,7 @@ const analysisModules = [
 
 export function SidebarNav() {
   const pathname = usePathname();
+  const { user, isUserLoading } = useFirebase();
 
   return (
     <>
@@ -114,12 +118,23 @@ export function SidebarNav() {
             <Link href="/profile">
                 <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent cursor-pointer">
                     <Avatar className="h-9 w-9">
-                        <AvatarImage src="https://picsum.photos/seed/user/100/100" alt="User" data-ai-hint="person face" />
-                        <AvatarFallback>U</AvatarFallback>
+                        <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || 'User'} data-ai-hint="person face" />
+                        <AvatarFallback>
+                            {isUserLoading ? <Skeleton className="h-9 w-9 rounded-full" /> : <UserCircle />}
+                        </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                        <span className="font-semibold text-sm">User</span>
-                        <span className="text-xs text-muted-foreground">user@email.com</span>
+                        {isUserLoading ? (
+                            <div className="space-y-1">
+                                <Skeleton className="h-4 w-20" />
+                                <Skeleton className="h-3 w-32" />
+                            </div>
+                        ) : (
+                           <>
+                                <span className="font-semibold text-sm">{user?.displayName || 'Anonymous User'}</span>
+                                <span className="text-xs text-muted-foreground">{user?.email || user?.uid.slice(0,10)+'...'}</span>
+                           </>
+                        )}
                     </div>
                 </div>
             </Link>

@@ -541,8 +541,6 @@ const SidebarMenuButton = React.forwardRef<
     asChild?: boolean
     isActive?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
-    icon?: React.ReactNode
-    label?: React.ReactNode
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
@@ -553,8 +551,6 @@ const SidebarMenuButton = React.forwardRef<
       size = "default",
       tooltip,
       className,
-      icon,
-      label,
       children,
       ...props
     },
@@ -562,13 +558,6 @@ const SidebarMenuButton = React.forwardRef<
   ) => {
     const { isMobile, state } = useSidebar()
     const Comp = asChild ? Slot : "button"
-
-    const buttonContent = children || (
-      <>
-        {icon}
-        <span>{label}</span>
-      </>
-    )
 
     const button = (
       <Comp
@@ -579,28 +568,42 @@ const SidebarMenuButton = React.forwardRef<
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
         {...props}
       >
-        {buttonContent}
+        {children}
       </Comp>
     );
 
-    if (!tooltip || !asChild) { // if not asChild, we assume it's a button and don't need the tooltip wrapper logic for Link
+    if (!tooltip || (isMobile || state === 'expanded') ) {
         return button
     }
-
 
     if (typeof tooltip === "string") {
       tooltip = {
         children: tooltip,
       }
     }
+    
+    // The button is a Slot, so we need to wrap it with TooltipTrigger which has asChild prop
+    if (asChild) {
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>{button}</TooltipTrigger>
+            <TooltipContent
+              side="right"
+              align="center"
+              {...tooltip}
+            />
+          </Tooltip>
+        )
+    }
 
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipTrigger asChild>
+            {button}
+        </TooltipTrigger>
         <TooltipContent
           side="right"
           align="center"
-          hidden={state !== "collapsed" || isMobile}
           {...tooltip}
         />
       </Tooltip>

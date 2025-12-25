@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -74,14 +75,14 @@ export function SidebarNav() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref>
+              <Link href={item.href}>
                 <SidebarMenuButton
-                    asChild
                     isActive={pathname === item.href}
                     tooltip={item.label}
-                    icon={<item.icon />}
-                    label={item.label}
-                />
+                >
+                    <item.icon />
+                    <span>{item.label}</span>
+                </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
           ))}
@@ -92,14 +93,14 @@ export function SidebarNav() {
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Tracking</p>
           {trackingModules.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref>
+              <Link href={item.href}>
                 <SidebarMenuButton
-                  asChild
                   isActive={pathname.startsWith(item.href)}
                   tooltip={item.label}
-                  icon={<item.icon />}
-                  label={item.label}
-                />
+                >
+                  <item.icon />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
           ))}
@@ -111,14 +112,14 @@ export function SidebarNav() {
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Analysis</p>
           {analysisModules.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref>
+              <Link href={item.href}>
                 <SidebarMenuButton
-                  asChild
                   isActive={pathname.startsWith(item.href)}
                   tooltip={item.label}
-                  icon={<item.icon />}
-                  label={item.label}
-                />
+                >
+                  <item.icon />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
           ))}
@@ -126,7 +127,7 @@ export function SidebarNav() {
       </SidebarContent>
 
       <SidebarFooter>
-        <Link href="/profile" passHref>
+        <Link href="/profile">
             <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent cursor-pointer">
                 <Avatar className="h-9 w-9">
                     <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || 'User'} data-ai-hint="person face" />

@@ -9,6 +9,16 @@ export type ScheduleEvent = {
   completed: boolean;
 };
 
+export type TimeBlock = {
+  id: string;
+  userId: string;
+  startTime: Timestamp;
+  endTime: Timestamp;
+  description: string;
+  domain: string;
+  completed: boolean;
+}
+
 export type DeepWorkSession = {
   id:string;
   userId: string;

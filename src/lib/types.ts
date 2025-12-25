@@ -83,3 +83,13 @@ export type PhotographySession = {
   skillGapAnalysis: string;
   createdAt: Timestamp;
 };
+
+export type YoutubeLectureProduction = {
+  id: string;
+  userId: string;
+  timeBlockId: string;
+  workflowStage: 'Learning' | 'Scripting' | 'Recording' | 'Audio Enhancement' | 'Visual Enhancement' | 'Publishing' | 'Analytics Review';
+  syllabusAlignment: string;
+  qualityFeedbackLoop: string;
+  createdAt: Timestamp;
+}

@@ -34,3 +34,18 @@ export type SleepLog = {
     quality: number; // 1-10
     obstacles: string[];
 }
+
+export type Task = {
+  id: string;
+  title: string;
+  completed: boolean;
+};
+
+export type Project = {
+  id: string;
+  name: string;
+  description: string;
+  status: 'On Track' | 'At Risk' | 'Completed';
+  progress: number; // percentage
+  tasks: Task[];
+};

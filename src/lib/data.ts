@@ -1,4 +1,4 @@
-import type { ScheduleEvent, DeepWorkSession, FitnessLog, SleepLog } from './types';
+import type { ScheduleEvent, DeepWorkSession, FitnessLog, SleepLog, Project } from './types';
 
 export const scheduleEvents: ScheduleEvent[] = [
   { id: '1', title: 'Deep Work: Linear Algebra', startTime: '09:00', endTime: '11:00', domain: 'Deep Work', completed: true },
@@ -24,3 +24,32 @@ export const sleepLogs: SleepLog[] = [
     { id: '1', date: '2024-07-20', plannedBedtime: '22:00', actualBedtime: '22:45', quality: 6, obstacles: ['Stress', 'Caffeine'] },
     { id: '2', date: '2024-07-19', plannedBedtime: '22:00', actualBedtime: '22:10', quality: 8, obstacles: [] },
 ];
+
+export const projects: Project[] = [
+    {
+        id: '1',
+        name: 'Synergistic Life Engine',
+        description: 'The very app you are using now. An AI-powered life optimization system.',
+        status: 'On Track',
+        progress: 60,
+        tasks: [
+            { id: 't1-1', title: 'Develop core data models', completed: true },
+            { id: 't1-2', title: 'Implement dashboard UI', completed: true },
+            { id: 't1-3', title: 'Integrate Genkit AI flows', completed: true },
+            { id: 't1-4', title: 'Build out projects module', completed: false },
+            { id: 't1-5', title: 'Flesh out all placeholder pages', completed: false },
+        ]
+    },
+    {
+        id: '2',
+        name: 'Learn Linear Algebra',
+        description: 'Deep dive into linear algebra for better understanding of ML.',
+        status: 'At Risk',
+        progress: 25,
+        tasks: [
+            { id: 't2-1', title: 'Complete chapter on Vector Spaces', completed: true },
+            { id: 't2-2', title: 'Study Eigenvalues and Eigenvectors', completed: false },
+            { id: 't2-3', title: 'Practice with matrix transformations', completed: false },
+        ]
+    }
+]

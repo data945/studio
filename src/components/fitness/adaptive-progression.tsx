@@ -22,11 +22,11 @@ export default function AdaptiveProgression({ performanceData }: AdaptiveProgres
     setIsLoading(true);
     setSuggestion(null);
 
-    const performanceSummary = performanceData.logs.map(
+    const performanceSummary = performanceData.exerciseDetails.map(
       (log) => `${log.exercise}: ${log.sets}x${log.reps} at ${log.weight}kg (RPE ${log.rpe})`
     ).join('; ');
 
-    const currentLevel = `${performanceData.name} - ${performanceData.createdAt ? format(performanceData.createdAt.toDate(), 'yyyy-MM-dd') : 'Recent'}`;
+    const currentLevel = `${performanceData.routineName} - ${performanceData.createdAt ? format(performanceData.createdAt.toDate(), 'yyyy-MM-dd') : 'Recent'}`;
 
     try {
       const result = await adaptiveProgression({

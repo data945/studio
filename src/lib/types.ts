@@ -24,10 +24,13 @@ export type TimeBlock = {
 export type DeepWorkSession = {
   id:string;
   userId: string;
+  timeBlockId: string;
+  subject: string;
   topic: string;
-  duration: number; // in minutes
-  confidence: number; // 1-10
-  blockages: string;
+  subtopic?: string;
+  concept: string;
+  confidenceScore: number; // 1-10
+  blockageNotes?: string;
   createdAt: Timestamp;
 };
 
@@ -38,13 +41,16 @@ export type FitnessLog = {
     reps: number;
     weight: number;
     rpe: number;
+    formNotes?: string;
 }
 
 export type FitnessSession = {
     id: string;
     userId: string;
-    name: string;
-    logs: FitnessLog[];
+    routineName: string;
+    exerciseDetails: FitnessLog[];
+    formFeedback?: string;
+    recoveryNotes?: string;
     createdAt: Timestamp;
 }
 

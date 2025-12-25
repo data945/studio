@@ -29,10 +29,12 @@ export default function DeepWorkPage() {
 
         const newSession: Omit<DeepWorkSession, 'id' | 'createdAt'> = {
             userId: user.uid,
-            topic: "New Session Topic",
-            duration: 60,
-            confidence: 5,
-            blockages: 'None',
+            timeBlockId: 'placeholder',
+            subject: 'Linear Algebra',
+            topic: 'Eigenvalues',
+            concept: 'Characteristic Polynomial',
+            confidenceScore: 7,
+            blockageNotes: 'None',
         };
         
         const sessionsCollectionRef = collection(firestore, `users/${user.uid}/deepWorkSessions`);
@@ -69,32 +71,36 @@ export default function DeepWorkPage() {
             {(isUserLoading || sessionsLoading) && <Loader2 className="h-8 w-8 animate-spin mx-auto my-8" />}
             
             {!isUserLoading && !sessionsLoading && sessions && sessions.length > 0 && (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Topic</TableHead>
-                            <TableHead>Duration</TableHead>
-                            <TableHead>Confidence</TableHead>
-                            <TableHead>Blockages</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {sessions.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis()).map((session) => (
-                            <TableRow key={session.id}>
-                                <TableCell>{session.createdAt ? format(session.createdAt.toDate(), 'yyyy-MM-dd') : 'N/A'}</TableCell>
-                                <TableCell className="font-medium">{session.topic}</TableCell>
-                                <TableCell>{session.duration} min</TableCell>
-                                <TableCell>
-                                    <Badge variant={session.confidence > 7 ? 'default' : session.confidence > 4 ? 'secondary' : 'destructive'} className="bg-primary/20 text-primary hover:bg-primary/30">
-                                        {session.confidence}/10
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="text-muted-foreground max-w-xs truncate">{session.blockages || 'None'}</TableCell>
+                <div className="w-full overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Subject</TableHead>
+                                <TableHead>Topic</TableHead>
+                                <TableHead>Concept</TableHead>
+                                <TableHead>Confidence</TableHead>
+                                <TableHead>Blockages</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {sessions.sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis()).map((session) => (
+                                <TableRow key={session.id}>
+                                    <TableCell>{session.createdAt ? format(session.createdAt.toDate(), 'yyyy-MM-dd') : 'N/A'}</TableCell>
+                                    <TableCell className="font-medium">{session.subject}</TableCell>
+                                    <TableCell>{session.topic}</TableCell>
+                                    <TableCell>{session.concept}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={session.confidenceScore > 7 ? 'default' : session.confidenceScore > 4 ? 'secondary' : 'destructive'} className="bg-primary/20 text-primary hover:bg-primary/30">
+                                            {session.confidenceScore}/10
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground max-w-xs truncate">{session.blockageNotes || 'None'}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
             )}
 
             {!isUserLoading && !sessionsLoading && (!sessions || sessions.length === 0) && (

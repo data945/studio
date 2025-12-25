@@ -66,7 +66,7 @@ export default function DashboardPage() {
   const totalBlocks = timeBlocks?.length || 0;
 
   const avgFocusScore = deepWorkSessions && deepWorkSessions.length > 0 
-    ? (deepWorkSessions.reduce((acc, s) => acc + s.confidence, 0) / deepWorkSessions.length).toFixed(1)
+    ? (deepWorkSessions.reduce((acc, s) => acc + s.confidenceScore, 0) / deepWorkSessions.length).toFixed(1)
     : 'N/A';
 
   const lastSleepQuality = sleepLogs && sleepLogs.length > 0

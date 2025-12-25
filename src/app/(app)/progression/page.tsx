@@ -16,7 +16,7 @@ type Domain = 'deep-work' | 'fitness' | 'vocal-practice' | 'photography';
 
 const domainConfig = {
     'deep-work': { label: 'Deep Work', collection: 'deepWorkSessions' },
-    'fitness': { label: 'Fitness', collection: 'fitness-sessions' },
+    'fitness': { label: 'Fitness', collection: 'exerciseSessions' },
     'vocal-practice': { label: 'Vocal Practice', collection: 'vocalPracticeSessions' },
     'photography': { label: 'Photography', collection: 'photographySessions' },
 };
@@ -43,14 +43,14 @@ export default function ProgressionPage() {
             case 'deep-work':
                 const session = data as DeepWorkSession;
                 return {
-                    summary: `Topic: ${session.topic}, Confidence: ${session.confidence}/10, Blockages: ${session.blockages}`,
+                    summary: `Topic: ${session.topic}, Concept: ${session.concept}, Confidence: ${session.confidenceScore}/10, Blockages: ${session.blockageNotes}`,
                     level: `Session on ${session.createdAt ? format(session.createdAt.toDate(), 'yyyy-MM-dd') : 'recent'}`
                 };
             case 'fitness':
                  const fitness = data as FitnessSession;
                  return {
-                     summary: fitness.logs.map(l => `${l.exercise}: ${l.sets}x${l.reps} @ ${l.weight}kg (RPE ${l.rpe})`).join('; '),
-                     level: `${fitness.name} on ${fitness.createdAt ? format(fitness.createdAt.toDate(), 'yyyy-MM-dd') : 'Recent'}`
+                     summary: fitness.exerciseDetails.map(l => `${l.exercise}: ${l.sets}x${l.reps} @ ${l.weight}kg (RPE ${l.rpe})`).join('; '),
+                     level: `${fitness.routineName} on ${fitness.createdAt ? format(fitness.createdAt.toDate(), 'Recent') : 'Recent'}`
                  };
             case 'vocal-practice':
                 const vocal = data as VocalPracticeSession;

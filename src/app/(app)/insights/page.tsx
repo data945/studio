@@ -33,7 +33,7 @@ export default function InsightsPage() {
     const deepWorkQuery = useMemoFirebase(() => user && firestore ? collection(firestore, `users/${user.uid}/deepWorkSessions`) : null, [firestore, user]);
     const sleepQuery = useMemoFirebase(() => user && firestore ? collection(firestore, `users/${user.uid}/sleepOptimizations`) : null, [firestore, user]);
     const nutritionQuery = useMemoFirebase(() => user && firestore ? collection(firestore, `users/${user.uid}/nutritionDiets`) : null, [firestore, user]);
-    const fitnessQuery = useMemoFirebase(() => user && firestore ? collection(firestore, `users/${user.uid}/fitness-sessions`) : null, [firestore, user]);
+    const fitnessQuery = useMemoFirebase(() => user && firestore ? collection(firestore, `users/${user.uid}/exerciseSessions`) : null, [firestore, user]);
 
     const { data: deepWorkSessions, isLoading: deepWorkLoading } = useCollection<DeepWorkSession>(deepWorkQuery);
     const { data: sleepLogs, isLoading: sleepLoading } = useCollection<SleepLog>(sleepQuery);
@@ -43,11 +43,11 @@ export default function InsightsPage() {
     useEffect(() => {
         const scores = {
             sleepQuality: calculateAverage(sleepLogs?.map(log => log.quality) ?? []),
-            deepWorkPerformance: calculateAverage(deepWorkSessions?.map(s => s.confidence) ?? []),
+            deepWorkPerformance: calculateAverage(deepWorkSessions?.map(s => s.confidenceScore) ?? []),
             // Simple nutrition score: average protein intake, capped at 10 for simplicity.
             nutritionScore: Math.min(10, calculateAverage(nutritionLogs?.map(log => log.protein / 15) ?? [])),
             // Simple exercise score: based on RPE
-            exerciseConsistency: calculateAverage(fitnessSessions?.flatMap(s => s.logs).map(l => l.rpe) ?? []),
+            exerciseConsistency: calculateAverage(fitnessSessions?.flatMap(s => s.exerciseDetails).map(l => l.rpe) ?? []),
         };
         setAverageScores(scores);
     }, [deepWorkSessions, sleepLogs, nutritionLogs, fitnessSessions]);

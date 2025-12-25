@@ -94,3 +94,14 @@ export type YoutubeLectureProduction = {
   qualityFeedbackLoop: string;
   createdAt: Timestamp;
 }
+
+export type NutritionLog = {
+  id: string;
+  userId: string;
+  mealName: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  createdAt: Timestamp;
+};

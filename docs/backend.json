@@ -440,48 +440,53 @@
     },
     "NutritionDiet": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "NutritionDiet",
+      "title": "NutritionLog",
       "type": "object",
-      "description": "Represents the Nutrition & Diet Tracking.",
+      "description": "Represents a single meal log for nutrition tracking.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the nutrition & diet entity."
+          "description": "Unique identifier for the nutrition log."
         },
         "userId": {
           "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N NutritionDiet)"
+          "description": "Reference to User. (Relationship: User 1:N NutritionLog)"
         },
-        "timeBlockId": {
+        "mealName": {
           "type": "string",
-          "description": "Reference to TimeBlock. (Relationship: TimeBlock 1:1 NutritionDiet)"
+          "description": "Name of the meal (e.g., 'Lunch', 'Post-workout shake')."
         },
-        "mealPlanningIntegration": {
-          "type": "string",
-          "description": "Pre-loaded meal plans from uploaded documents."
+        "calories": {
+          "type": "number",
+          "description": "Total calories for the meal."
         },
-        "macroTracking": {
-          "type": "string",
-          "description": "Calories, protein, carbs, fat per meal."
+        "protein": {
+          "type": "number",
+          "description": "Grams of protein."
         },
-        "quickLogging": {
-          "type": "string",
-          "description": "Barcode scanning + voice input for fast food logging."
+        "carbs": {
+          "type": "number",
+          "description": "Grams of carbohydrates."
         },
-        "budgetAwareness": {
-          "type": "string",
-          "description": "Alerts when approaching daily calorie/macros limits."
+        "fat": {
+          "type": "number",
+          "description": "Grams of fat."
         },
-        "symptomCorrelation": {
+        "createdAt": {
           "type": "string",
-          "description": "Link food intake to energy levels, mood, performance."
+          "format": "date-time",
+          "description": "Timestamp when the meal was logged."
         }
       },
       "required": [
         "id",
         "userId",
-        "timeBlockId",
-        "mealPlanningIntegration"
+        "mealName",
+        "calories",
+        "protein",
+        "carbs",
+        "fat",
+        "createdAt"
       ]
     },
     "ExpenseManagement": {

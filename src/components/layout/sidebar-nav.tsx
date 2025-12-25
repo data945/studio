@@ -115,9 +115,8 @@ export function SidebarNav() {
       </SidebarContent>
 
       <SidebarFooter>
-        <Separator className="mb-2" />
-        <div className="p-2">
-             <Link href="/profile" className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent cursor-pointer" passHref>
+        <Link href="/profile" passHref legacyBehavior>
+            <a className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent cursor-pointer">
                 <Avatar className="h-9 w-9">
                     <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || 'User'} data-ai-hint="person face" />
                     <AvatarFallback>
@@ -137,8 +136,8 @@ export function SidebarNav() {
                         </>
                     )}
                 </div>
-            </Link>
-        </div>
+            </a>
+        </Link>
       </SidebarFooter>
     </>
   );

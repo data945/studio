@@ -26,8 +26,8 @@ import {
   SidebarMenuButton,
   SidebarContent,
   SidebarFooter,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useFirebase } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -74,7 +74,7 @@ export function SidebarNav() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior={false} passHref>
+              <Link href={item.href} passHref>
                 <SidebarMenuButton
                     asChild
                     isActive={pathname === item.href}
@@ -86,14 +86,13 @@ export function SidebarNav() {
             </SidebarMenuItem>
           ))}
           </SidebarMenu>
-
+          <SidebarSeparator />
           <SidebarMenu>
-          <Separator className="my-2" />
 
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Tracking</p>
           {trackingModules.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior={false} passHref>
+              <Link href={item.href} passHref>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname.startsWith(item.href)}
@@ -106,13 +105,13 @@ export function SidebarNav() {
           ))}
           </SidebarMenu>
           
+          <SidebarSeparator />
           <SidebarMenu>
-          <Separator className="my-2" />
           
           <p className="px-4 text-xs text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">Analysis</p>
           {analysisModules.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior={false} passHref>
+              <Link href={item.href} passHref>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname.startsWith(item.href)}
@@ -127,8 +126,8 @@ export function SidebarNav() {
       </SidebarContent>
 
       <SidebarFooter>
-        <Link href="/profile" passHref legacyBehavior>
-            <a className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent cursor-pointer">
+        <Link href="/profile" passHref>
+            <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent cursor-pointer">
                 <Avatar className="h-9 w-9">
                     <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || 'User'} data-ai-hint="person face" />
                     <AvatarFallback>
@@ -148,7 +147,7 @@ export function SidebarNav() {
                         </>
                     )}
                 </div>
-            </a>
+            </div>
         </Link>
       </SidebarFooter>
     </>

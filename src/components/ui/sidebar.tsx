@@ -375,7 +375,7 @@ const SidebarFooter = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="footer"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn("mt-auto flex flex-col gap-2 p-2", className)}
       {...props}
     />
   )
@@ -390,7 +390,7 @@ const SidebarSeparator = React.forwardRef<
     <Separator
       ref={ref}
       data-sidebar="separator"
-      className={cn("mx-2 w-auto bg-sidebar-border", className)}
+      className={cn("mx-2 my-2 w-auto bg-sidebar-border", className)}
       {...props}
     />
   )
@@ -561,14 +561,14 @@ const SidebarMenuButton = React.forwardRef<
     ref
   ) => {
     const { isMobile, state } = useSidebar()
-    const Comp = asChild ? Slot : 'button';
+    const Comp = asChild ? Slot : "button"
 
     const buttonContent = children || (
       <>
         {icon}
         <span>{label}</span>
       </>
-    );
+    )
 
     const button = (
       <Comp
@@ -581,11 +581,12 @@ const SidebarMenuButton = React.forwardRef<
       >
         {buttonContent}
       </Comp>
-    )
+    );
 
-    if (!tooltip) {
-      return button
+    if (!tooltip || !asChild) { // if not asChild, we assume it's a button and don't need the tooltip wrapper logic for Link
+        return button
     }
+
 
     if (typeof tooltip === "string") {
       tooltip = {
